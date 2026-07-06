@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use vellum_git::{Repo, RemoteOrigin};
+use vellum_git::{RemoteOrigin, Repo};
 
 // ── Remote origin ──
 
@@ -11,15 +11,24 @@ use vellum_git::{Repo, RemoteOrigin};
 fn parse_github_gitlab_codeberg() {
     let gh = RemoteOrigin::parse("git@github.com:so1ve/vellum.git").unwrap();
     assert_eq!(gh.web_url, "https://github.com/so1ve/vellum");
-    assert_eq!(gh.commit_url("abc"), "https://github.com/so1ve/vellum/commit/abc");
+    assert_eq!(
+        gh.commit_url("abc"),
+        "https://github.com/so1ve/vellum/commit/abc"
+    );
 
     let gl = RemoteOrigin::parse("https://gitlab.com/group/subgroup/blog.git").unwrap();
     assert_eq!(gl.web_url, "https://gitlab.com/group/subgroup/blog");
-    assert_eq!(gl.commit_url("def"), "https://gitlab.com/group/subgroup/blog/-/commit/def");
+    assert_eq!(
+        gl.commit_url("def"),
+        "https://gitlab.com/group/subgroup/blog/-/commit/def"
+    );
 
     let cb = RemoteOrigin::parse("ssh://git@codeberg.org/miku/notes.git").unwrap();
     assert_eq!(cb.web_url, "https://codeberg.org/miku/notes");
-    assert_eq!(cb.commit_url("789"), "https://codeberg.org/miku/notes/commit/789");
+    assert_eq!(
+        cb.commit_url("789"),
+        "https://codeberg.org/miku/notes/commit/789"
+    );
 
     assert!(RemoteOrigin::parse("https://example.com/owner/repo.git").is_none());
 }
@@ -54,7 +63,10 @@ fn state_head_origin_dirty() {
     assert_eq!(s.short_head, s.head[..7]);
     assert!(s.dirty);
     let o = s.origin.unwrap();
-    assert_eq!(o.commit_url(&s.head), format!("https://github.com/so1ve/vellum/commit/{}", s.head));
+    assert_eq!(
+        o.commit_url(&s.head),
+        format!("https://github.com/so1ve/vellum/commit/{}", s.head)
+    );
 }
 
 // ── File info ──
@@ -102,7 +114,10 @@ fn file_info_brackets_and_absolute() {
 
     let r = Repo::open(repo.path()).unwrap();
     let rel = r.file_info("posts/[hello].md").unwrap().unwrap();
-    let abs = r.file_info(repo.path().join("posts/[hello].md")).unwrap().unwrap();
+    let abs = r
+        .file_info(repo.path().join("posts/[hello].md"))
+        .unwrap()
+        .unwrap();
     assert_eq!(rel.created_commit, abs.created_commit);
     assert_eq!(rel.updated_commit, abs.updated_commit);
 }
@@ -115,7 +130,10 @@ struct TestRepo {
 
 impl TestRepo {
     fn new(name: &str) -> Self {
-        let stamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+        let stamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
         let path = std::env::temp_dir().join(format!("vellum_git_{name}_{stamp}"));
         fs::create_dir_all(&path).unwrap();
         Self { path }
@@ -141,7 +159,11 @@ impl TestRepo {
     }
 
     fn run<const N: usize>(&self, args: [&str; N]) {
-        let out = Command::new("git").args(args).current_dir(&self.path).output().unwrap();
+        let out = Command::new("git")
+            .args(args)
+            .current_dir(&self.path)
+            .output()
+            .unwrap();
         assert!(
             out.status.success(),
             "git {args:?} failed — {}",
