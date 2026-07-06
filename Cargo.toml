@@ -1,0 +1,55 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Ray <i@mk1.io>"]
+edition = "2024"
+repository = "https://github.com/so1ve/vellum"
+license = "MIT"
+
+[workspace.dependencies]
+askama = "0.16"
+comrak = { version = "0.52", default-features = false }
+rayon = "1"
+syntect = { version = "5", default-features = false, features = ["default-fancy"] }
+
+[workspace.lints.clippy]
+all = "warn"
+clone-on-ref-ptr = "warn"
+default-trait-access = "warn"
+enum-glob-use = "warn"
+fn-params-excessive-bools = "warn"
+format-collect = "warn"
+format-push-string = "warn"
+implicit-clone = "warn"
+items-after-statements = "warn"
+manual-let-else = "warn"
+manual-string-new = "warn"
+match-same-arms = "warn"
+match-wildcard-for-single-variants = "warn"
+missing-const-for-fn = "warn"
+must-use-candidate = "warn"
+needless-pass-by-value = "warn"
+redundant-pub-crate = "warn"
+semicolon-if-nothing-returned = "warn"
+single-match-else = "warn"
+struct-excessive-bools = "warn"
+undocumented_unsafe_blocks = "warn"
+uninlined-format-args = "warn"
+unnecessary-literal-bound = "warn"
+use-self = "warn"
+verbose-file-reads = "warn"
+wildcard-imports = "warn"
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 2
+strip = true
+lto = true
+panic = "abort"
+codegen-units = 1
