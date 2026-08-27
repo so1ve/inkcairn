@@ -61,11 +61,11 @@ fn generate(
     let posts = posts
         .into_par_iter()
         .map(|post| renderer.post(post))
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>>>()?;
     let pages = pages
         .into_par_iter()
         .map(|page| renderer.page(page))
-        .collect::<Vec<_>>();
+        .collect::<Result<Vec<_>>>()?;
     let categories = categories::collect(&posts);
     let snippets = load_snippets(root, &renderer)?;
     let template_build = if let Some(git) = git.as_ref()
@@ -198,7 +198,7 @@ fn load_snippet(root: &Path, name: &str, renderer: &Renderer) -> Result<Option<S
 
     match (markdown, html) {
         (Some(_), Some(_)) => bail!("snippets/{name}.md and snippets/{name}.html both exist"),
-        (Some(markdown), None) => Ok(Some(renderer.markdown(&markdown))),
+        (Some(markdown), None) => Ok(Some(renderer.markdown(&markdown)?)),
         (None, html) => Ok(html),
     }
 }

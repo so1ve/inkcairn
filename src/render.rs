@@ -1,12 +1,15 @@
 use std::path::PathBuf;
+use std::sync::Mutex;
 
+use anyhow::{Context, Result};
 use comrak::options::Plugins;
-use comrak::{Arena, format_html_with_plugins};
+use comrak::{Arena, Node, format_html_with_plugins};
 use time::Date;
 
 use crate::content::{Document, Page, PagePath, Post, PostPath};
 use crate::parser::Parser;
 
+mod friends;
 mod headings;
 mod highlight;
 mod stylesheet;
@@ -64,6 +67,19 @@ pub struct Renderer {
     highlighter: Highlighter,
 }
 
+const FRIENDS_LANGUAGE: &str = "friends";
+
+#[derive(Default)]
+struct FriendLinks {
+    error: Mutex<Option<anyhow::Error>>,
+}
+
+impl FriendLinks {
+    fn take_error(&self) -> Option<anyhow::Error> {
+        self.error.lock().unwrap().take()
+    }
+}
+
 impl Renderer {
     pub fn new(parser: Parser) -> Self {
         Self {
@@ -72,46 +88,39 @@ impl Renderer {
         }
     }
 
-    pub fn post(&self, source: Post) -> RenderedPost {
-        let (article, description) = self.document(source.document, true);
+    pub fn post(&self, source: Post) -> Result<RenderedPost> {
+        let (article, description) = self.document(source.document, true)?;
 
-        RenderedPost {
+        Ok(RenderedPost {
             article,
             path: source.path,
             description,
-        }
+        })
     }
 
-    pub fn page(&self, source: Page) -> RenderedPage {
-        let (article, _) = self.document(source.document, false);
+    pub fn page(&self, source: Page) -> Result<RenderedPage> {
+        let (article, _) = self.document(source.document, false)?;
 
-        RenderedPage {
+        Ok(RenderedPage {
             article,
             path: source.path,
-        }
+        })
     }
 
     fn document(
         &self,
         source: Document,
         extract_description: bool,
-    ) -> (RenderedArticle, Option<RenderedDescription>) {
+    ) -> Result<(RenderedArticle, Option<RenderedDescription>)> {
         let arena = Arena::new();
         let root = self.parser.parse(&arena, &source.markdown);
         let title_heading = Parser::title_heading(root);
         let title = match title_heading {
             Some(heading) => {
                 let text = Parser::plain_text([heading]);
-                let mut html = String::new();
-                for node in heading.children() {
-                    format_html_with_plugins(
-                        node,
-                        &self.parser.options,
-                        &mut html,
-                        &Plugins::default(),
-                    )
-                    .unwrap();
-                }
+                let html = self
+                    .html(heading.children(), None)
+                    .with_context(|| format!("failed to render {}", source.source.display()))?;
 
                 RenderedTitle {
                     text: if text.is_empty() {
@@ -132,20 +141,20 @@ impl Renderer {
             },
         };
         let description = if extract_description {
-            title_heading.and_then(|heading| {
+            if let Some(heading) = title_heading {
                 let nodes = Parser::description_nodes(heading);
                 let text = Parser::plain_text(nodes.iter().copied());
-                let mut html = String::new();
-                let mut plugins = Plugins::default();
-                plugins.render.codefence_syntax_highlighter = Some(&self.highlighter);
+                let html = self
+                    .html(nodes.iter().copied(), None)
+                    .with_context(|| format!("failed to render {}", source.source.display()))?;
                 for node in nodes {
-                    format_html_with_plugins(node, &self.parser.options, &mut html, &plugins)
-                        .unwrap();
                     node.detach();
                 }
 
                 (!html.trim().is_empty()).then_some(RenderedDescription { text, html })
-            })
+            } else {
+                None
+            }
         } else {
             None
         };
@@ -153,16 +162,12 @@ impl Renderer {
             heading.detach();
         }
         let headings = Headings::new(root);
-        let mut html = String::new();
-        {
-            let mut plugins = Plugins::default();
-            plugins.render.codefence_syntax_highlighter = Some(&self.highlighter);
-            plugins.render.heading_adapter = Some(&headings);
-            format_html_with_plugins(root, &self.parser.options, &mut html, &plugins).unwrap();
-        }
+        let html = self
+            .html([root], Some(&headings))
+            .with_context(|| format!("failed to render {}", source.source.display()))?;
         let (outline, sections) = headings.into_parts();
 
-        (
+        Ok((
             RenderedArticle {
                 source: source.source,
                 draft: source.draft,
@@ -174,18 +179,41 @@ impl Renderer {
                 sections,
             },
             description,
-        )
+        ))
     }
 
-    pub fn markdown(&self, source: &str) -> String {
+    pub fn markdown(&self, source: &str) -> Result<String> {
         let arena = Arena::new();
         let root = self.parser.parse(&arena, source);
-        let mut plugins = Plugins::default();
-        plugins.render.codefence_syntax_highlighter = Some(&self.highlighter);
-        let mut html = String::new();
-        format_html_with_plugins(root, &self.parser.options, &mut html, &plugins).unwrap();
 
-        html
+        self.html([root], None)
+    }
+
+    fn html<'a>(
+        &self,
+        nodes: impl IntoIterator<Item = Node<'a>>,
+        headings: Option<&Headings>,
+    ) -> Result<String> {
+        let friends = FriendLinks::default();
+        let mut plugins = Plugins::default();
+        plugins
+            .render
+            .codefence_renderers
+            .insert(FRIENDS_LANGUAGE.to_owned(), &friends);
+        plugins.render.codefence_syntax_highlighter = Some(&self.highlighter);
+        if let Some(headings) = headings {
+            plugins.render.heading_adapter = Some(headings);
+        }
+        let mut html = String::new();
+        for node in nodes {
+            if let Err(error) =
+                format_html_with_plugins(node, &self.parser.options, &mut html, &plugins)
+            {
+                return Err(friends.take_error().unwrap_or_else(|| error.into()));
+            }
+        }
+
+        Ok(html)
     }
 }
 
@@ -203,4 +231,44 @@ fn escape_html(value: &str) -> String {
     }
 
     html
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn renders_friends_codefence_plugin() {
+        let renderer = Renderer::new(Parser::new());
+        let html = renderer
+            .markdown("```friends\n- name: Ray & Co.\n  url: https://example.com?a=1&b=2\n```\n")
+            .unwrap();
+
+        assert!(html.contains("Ray &amp; Co."));
+        assert!(html.contains("https://example.com?a=1&amp;b=2"));
+        assert!(html.contains("aria-hidden=\"true\">R</span>"));
+        assert!(!html.contains("<pre"));
+    }
+
+    #[test]
+    fn reports_invalid_friends_codefence() {
+        let renderer = Renderer::new(Parser::new());
+
+        assert_eq!(
+            renderer
+                .markdown("```friends\n[]\n```\n")
+                .unwrap_err()
+                .to_string(),
+            "friends block cannot be empty"
+        );
+        assert!(
+            renderer
+                .markdown(
+                    "```friends\n- name: Ray\n  url: https://example.com\n  extra: value\n```\n"
+                )
+                .unwrap_err()
+                .to_string()
+                .contains("invalid friends block")
+        );
+    }
 }

@@ -150,6 +150,24 @@ This sentence has a note.[^note]
 > Callouts can be Note, Tip, Important, Warning, or Caution.
 ```
 
+Render a responsive list of friend links with a `friends` block:
+
+````markdown
+```friends
+- name: John Doe
+  url: https://john.example.com
+  description: A short description
+  avatar: /assets/john.png
+
+- name: Jane Smith
+  url: https://jane.example.com
+```
+````
+
+`name` and `url` are required. `description` and `avatar` are optional. Without
+an avatar, the card displays the first character of its name. Entries retain
+their order in the Markdown file.
+
 ## Add assets and snippets
 
 Place images and other static files in `assets/`. Reference them from Markdown

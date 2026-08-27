@@ -83,6 +83,8 @@ impl Parser {
                 match &node.data().value {
                     NodeValue::Text(value) => text.push_str(value),
                     NodeValue::Code(code) => text.push_str(&code.literal),
+                    NodeValue::CodeBlock(code)
+                        if code.info.split_whitespace().next() == Some("friends") => {}
                     NodeValue::CodeBlock(code) => {
                         text.push(' ');
                         text.push_str(&code.literal);
