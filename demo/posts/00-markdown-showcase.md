@@ -78,7 +78,7 @@ const describe = (post: Post) => `${post.title} · ${post.published.getFullYear(
 
 When the change matters more than the surrounding file, a diff says it directly:
 
-```diff
+```ts,diff
 -const status = "draft";
 +const status = "published";
 ```
