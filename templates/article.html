@@ -6,9 +6,9 @@
     {% include "category-breadcrumbs.html" %}
     <h1>{{ article.title.html|safe }}</h1>
     <div class="article-meta">
-      {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
       <time datetime="{{ article.published }}">{{ article.published }}</time>
       {% if article.updated != article.published %}<span>Updated {{ article.updated }}</span>{% endif %}
+      {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
     </div>
   </header>
   <div class="article-content">
