@@ -18,9 +18,10 @@ jobs:
     name: Build
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: cachix/install-nix-action@v31
-      - run: nix run .#inkcairn -- build demo
+      - uses: so1ve/workflows/setup-rust@v1
+        with:
+          toolchain: nightly
+      - run: cargo run -- build demo
       - uses: actions/upload-pages-artifact@v5
         with:
           path: demo/dist
