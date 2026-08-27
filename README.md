@@ -1,5 +1,7 @@
 # Inkcairn
 
+Simple blog generator using your Git index.
+
 Inkcairn turns a Git repository of Markdown files into a complete static blog.
 It provides a built-in layout, pages, categories, syntax highlighting, search,
 feeds, and live preview, then writes plain static files that can be hosted
