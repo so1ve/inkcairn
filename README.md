@@ -168,6 +168,27 @@ Render a responsive list of friend links with a `friends` block:
 an avatar, the card displays the first character of its name. Entries retain
 their order in the Markdown file.
 
+Render device cards with a `devices` block:
+
+````markdown
+```devices
+- name: OnePlus 13
+  description: A short description
+  image: /assets/oneplus-13.png
+  specs:
+    - 24GB RAM
+    - 1TB storage
+
+- name: OnePlus Pad Pro
+  specs:
+    - 8GB RAM
+    - 256GB storage
+```
+````
+
+`name` is required. `description`, `image`, and `specs` are optional. Cards are
+shown two per row and collapse to one per row on narrow screens.
+
 ## Add assets and snippets
 
 Place images and other static files in `assets/`. Reference them from Markdown

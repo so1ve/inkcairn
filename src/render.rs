@@ -9,6 +9,7 @@ use time::Date;
 use crate::content::{Document, Page, PagePath, Post, PostPath};
 use crate::parser::Parser;
 
+mod devices;
 mod friends;
 mod headings;
 mod highlight;
@@ -68,13 +69,25 @@ pub struct Renderer {
 }
 
 const FRIENDS_LANGUAGE: &str = "friends";
+const DEVICES_LANGUAGE: &str = "devices";
 
 #[derive(Default)]
 struct FriendLinks {
     error: Mutex<Option<anyhow::Error>>,
 }
 
+#[derive(Default)]
+struct DeviceCards {
+    error: Mutex<Option<anyhow::Error>>,
+}
+
 impl FriendLinks {
+    fn take_error(&self) -> Option<anyhow::Error> {
+        self.error.lock().unwrap().take()
+    }
+}
+
+impl DeviceCards {
     fn take_error(&self) -> Option<anyhow::Error> {
         self.error.lock().unwrap().take()
     }
@@ -195,11 +208,16 @@ impl Renderer {
         headings: Option<&Headings>,
     ) -> Result<String> {
         let friends = FriendLinks::default();
+        let devices = DeviceCards::default();
         let mut plugins = Plugins::default();
         plugins
             .render
             .codefence_renderers
             .insert(FRIENDS_LANGUAGE.to_owned(), &friends);
+        plugins
+            .render
+            .codefence_renderers
+            .insert(DEVICES_LANGUAGE.to_owned(), &devices);
         plugins.render.codefence_syntax_highlighter = Some(&self.highlighter);
         if let Some(headings) = headings {
             plugins.render.heading_adapter = Some(headings);
@@ -209,7 +227,10 @@ impl Renderer {
             if let Err(error) =
                 format_html_with_plugins(node, &self.parser.options, &mut html, &plugins)
             {
-                return Err(friends.take_error().unwrap_or_else(|| error.into()));
+                return Err(friends
+                    .take_error()
+                    .or_else(|| devices.take_error())
+                    .unwrap_or_else(|| error.into()));
             }
         }
 
