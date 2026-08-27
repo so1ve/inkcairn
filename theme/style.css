@@ -605,7 +605,8 @@ a:focus-visible {
 }
 
 .markdown-body pre {
-  --code-control-size: 1.5rem;
+  --code-control-inset: 0.35rem;
+  --code-control-size: 1.4rem;
 
   position: relative;
   max-width: 100%;
@@ -621,21 +622,26 @@ a:focus-visible {
 
 .markdown-body pre[data-meta]::before {
   position: absolute;
-  top: 0;
-  right: var(--code-control-size);
-  display: flex;
+  top: var(--code-control-inset);
+  right: calc(
+    var(--code-control-size) + var(--code-control-inset) + var(--code-control-inset)
+  );
+  display: none;
   align-items: center;
   box-sizing: border-box;
-  max-width: calc(100% - var(--code-control-size) - 0.1rem);
+  max-width: calc(
+    100% - var(--code-control-size) - var(--code-control-inset) -
+      var(--code-control-inset) - var(--code-control-inset)
+  );
   height: var(--code-control-size);
-  padding-inline: 0.5rem;
+  padding-inline: 0.45rem;
   overflow: hidden;
   color: var(--muted);
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  border-left: 1px solid var(--border);
+  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  border-radius: 999px;
   content: attr(data-meta);
-  font-size: 0.625rem;
+  font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1;
@@ -648,8 +654,8 @@ a:focus-visible {
 .copy-code {
   position: absolute;
   z-index: 1;
-  top: 0;
-  right: 0;
+  top: var(--code-control-inset);
+  right: var(--code-control-inset);
   display: grid;
   width: var(--code-control-size);
   height: var(--code-control-size);
@@ -658,9 +664,8 @@ a:focus-visible {
   color: var(--muted);
   cursor: pointer;
   background: var(--surface);
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  border-left: 1px solid var(--border);
+  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
+  border-radius: 999px;
   place-items: center;
 }
 
@@ -689,6 +694,32 @@ a:focus-visible {
 
 .copy-code[data-copied] .copy-success {
   display: block;
+}
+
+@media (hover: hover) {
+  .markdown-body pre[data-meta]::before {
+    display: flex;
+    opacity: 0;
+  }
+
+  .copy-code {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .markdown-body pre:hover::before,
+  .markdown-body pre:focus-within::before,
+  .markdown-body pre:hover .copy-code,
+  .markdown-body pre:focus-within .copy-code,
+  .copy-code[data-copied] {
+    opacity: 1;
+  }
+
+  .markdown-body pre:hover .copy-code,
+  .markdown-body pre:focus-within .copy-code,
+  .copy-code[data-copied] {
+    pointer-events: auto;
+  }
 }
 
 .markdown-body pre code {
