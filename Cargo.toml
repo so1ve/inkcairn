@@ -6,6 +6,10 @@ description = "Simple blog generator using your Git index"
 repository = "https://github.com/so1ve/inkcairn"
 license = "MIT"
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ target }"
+pkg-fmt = "bin"
+
 [dependencies]
 anyhow = "1"
 askama = "0.16"
