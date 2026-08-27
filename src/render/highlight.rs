@@ -17,7 +17,7 @@ pub struct Highlighter {
 impl Default for Highlighter {
     fn default() -> Self {
         Self {
-            syntaxes: SyntaxSet::load_defaults_newlines(),
+            syntaxes: two_face::syntax::extra_newlines(),
         }
     }
 }
@@ -32,7 +32,17 @@ impl SyntaxHighlighterAdapter for Highlighter {
         let fence = Fence::parse(info);
         let syntax = fence
             .language
-            .and_then(|language| self.syntaxes.find_syntax_by_token(language))
+            .and_then(|language| {
+                let language = match language {
+                    "csharp" => "cs",
+                    "docker" => "dockerfile",
+                    "jsx" => "tsx",
+                    "jsonc" => "json",
+                    "shell" => "bash",
+                    _ => language,
+                };
+                self.syntaxes.find_syntax_by_token(language)
+            })
             .unwrap_or_else(|| self.syntaxes.find_syntax_plain_text());
 
         lines::write(output, &self.syntaxes, syntax, code, fence.diff)

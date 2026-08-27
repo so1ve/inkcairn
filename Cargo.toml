@@ -25,6 +25,7 @@ tempfile = "3"
 tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.7", features = ["fs"] }
+two-face = { version = "0.5.2", default-features = false, features = ["syntect-fancy"] }
 yaml_serde = "0.10"
 
 [lints.clippy]
