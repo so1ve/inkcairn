@@ -536,6 +536,7 @@ a:focus-visible {
 }
 
 .markdown-body blockquote {
+  margin-inline: 0;
   padding-left: 1rem;
   color: var(--quote);
   border-left: 3px solid var(--quote);
