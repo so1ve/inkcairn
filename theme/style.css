@@ -14,9 +14,12 @@
   --callout-warning: oklch(58% 0.14 75);
   --surface: oklch(95.5% 0.004 250);
   --border: oklch(76% 0.015 250);
-  font-family:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+  --font-monospace:
+    ui-monospace, "Cascadia Mono", SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Noto Sans Mono CJK SC", "Sarasa Mono SC",
+    "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", monospace;
+
+  font-family: var(--font-monospace);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -597,10 +600,13 @@ a:focus-visible {
   color: var(--heading);
   background: var(--surface);
   border-radius: 0.2rem;
+  font-family: var(--font-monospace);
   font-size: 0.88em;
 }
 
 .markdown-body pre {
+  --code-control-size: 1.5rem;
+
   position: relative;
   max-width: 100%;
   padding: 0.3rem 0 0.3rem 0.4rem;
@@ -608,6 +614,7 @@ a:focus-visible {
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
+  font-family: var(--font-monospace);
   line-height: 1.65;
   tab-size: 2;
 }
@@ -615,11 +622,12 @@ a:focus-visible {
 .markdown-body pre[data-meta]::before {
   position: absolute;
   top: 0;
-  right: 1.5rem;
+  right: var(--code-control-size);
   display: flex;
   align-items: center;
-  max-width: calc(100% - 1.6rem);
-  height: 1.5rem;
+  box-sizing: border-box;
+  max-width: calc(100% - var(--code-control-size) - 0.1rem);
+  height: var(--code-control-size);
   padding-inline: 0.5rem;
   overflow: hidden;
   color: var(--muted);
@@ -643,9 +651,10 @@ a:focus-visible {
   top: 0;
   right: 0;
   display: grid;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: var(--code-control-size);
+  height: var(--code-control-size);
   padding: 0;
+  appearance: none;
   color: var(--muted);
   cursor: pointer;
   background: var(--surface);
