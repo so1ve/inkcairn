@@ -94,6 +94,10 @@ impl GitIndex {
     }
 
     pub fn file_info(&self, path: &Path) -> io::Result<Option<FileInfo>> {
+        if self.head.is_none() {
+            return Ok(None);
+        }
+
         let relative = path.strip_prefix(&self.repository.root).unwrap();
         let status = self
             .repository
