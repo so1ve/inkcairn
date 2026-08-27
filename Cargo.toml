@@ -2,7 +2,7 @@
 name = "inkcairn"
 version = "0.1.0"
 edition = "2024"
-description = "An opinionated Markdown blog generator"
+description = "Simple blog generator using your Git index"
 repository = "https://github.com/so1ve/inkcairn"
 license = "MIT"
 
@@ -62,6 +62,6 @@ wildcard_imports = "warn"
 unsafe_code = "forbid"
 
 [profile.release]
+strip = "symbols"
 lto = "thin"
 panic = "abort"
-strip = "symbols"
