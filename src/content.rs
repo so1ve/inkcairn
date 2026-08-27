@@ -2,13 +2,15 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use anyhow::{Result, bail};
+use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use time::{Date, OffsetDateTime};
 
 use crate::git::GitIndex;
 use crate::parser::Parser;
 use crate::url_path;
+
+mod filename;
 
 #[derive(Clone)]
 pub struct CategoryPath {
@@ -40,6 +42,7 @@ pub struct Document {
 pub struct Post {
     pub document: Document,
     pub path: PostPath,
+    pub pinned: bool,
 }
 
 pub struct Page {
@@ -129,11 +132,13 @@ fn discover_posts(
     files.sort();
 
     let mut outputs = HashSet::new();
-    let mut posts = Vec::new();
+    let mut posts = filename::Posts::new();
 
     for source in files {
-        let (document, slug) = parse_document(root, &source, parser, git)?;
-        let path = PostPath::from_source(&directory, &source, &slug);
+        let name = filename::post_name(&source)
+            .with_context(|| format!("invalid post filename {}", source.display()))?;
+        let document = parse_document(root, &source, parser, git, name.slug(), name.draft())?;
+        let path = PostPath::from_source(&directory, &source, name.slug());
 
         if !outputs.insert(path.output.clone()) {
             bail!(
@@ -142,12 +147,25 @@ fn discover_posts(
                 path.output
             );
         }
-        if include_drafts || !document.draft {
-            posts.push(Post { document, path });
-        }
+        let published = document.published;
+        let document_source = document.source.clone();
+        posts.push(
+            &document_source,
+            published,
+            &name,
+            Post {
+                document,
+                path,
+                pinned: name.pinned(),
+            },
+        )?;
     }
 
-    Ok(posts)
+    Ok(posts
+        .into_values()
+        .into_iter()
+        .filter(|post| include_drafts || !post.document.draft)
+        .collect())
 }
 
 fn discover_pages(
@@ -165,8 +183,9 @@ fn discover_pages(
     let mut pages = Vec::new();
 
     for source in files {
-        let (document, slug) = parse_document(root, &source, parser, git)?;
-        let path = PagePath::from_slug(&slug);
+        let name = filename::page_name(&source);
+        let document = parse_document(root, &source, parser, git, name.slug(), name.draft())?;
+        let path = PagePath::from_slug(name.slug());
 
         if !outputs.insert(path.output.clone()) {
             bail!(
@@ -188,12 +207,9 @@ fn parse_document(
     source_path: &Path,
     parser: &Parser,
     git: Option<&GitIndex>,
-) -> Result<(Document, String)> {
-    let file_stem = source_path.file_stem().unwrap().to_str().unwrap();
-    let (file_stem, draft) = match file_stem.strip_suffix(".draft") {
-        Some(file_stem) => (file_stem, true),
-        None => (file_stem, false),
-    };
+    fallback_title: &str,
+    draft: bool,
+) -> Result<Document> {
     let markdown = fs::read_to_string(source_path)?;
     let frontmatter = match parser.frontmatter(&markdown).as_deref() {
         Some("") | None => Frontmatter::default(),
@@ -203,17 +219,14 @@ fn parse_document(
     let published = frontmatter.published.unwrap_or(inferred_published);
     let source = source_path.strip_prefix(root).unwrap().to_owned();
 
-    Ok((
-        Document {
-            source,
-            fallback_title: file_stem.to_owned(),
-            draft,
-            published,
-            updated,
-            markdown,
-        },
-        strip_order_prefix(file_stem).to_owned(),
-    ))
+    Ok(Document {
+        source,
+        fallback_title: fallback_title.to_owned(),
+        draft,
+        published,
+        updated,
+        markdown,
+    })
 }
 
 fn collect_markdown(directory: &Path, output: &mut Vec<PathBuf>) -> Result<()> {
@@ -267,12 +280,86 @@ fn filesystem_dates(path: &Path) -> Result<(Date, Date)> {
     ))
 }
 
-fn strip_order_prefix(stem: &str) -> &str {
-    let bytes = stem.as_bytes();
-    if bytes.len() > 3 && bytes[0].is_ascii_digit() && bytes[1].is_ascii_digit() && bytes[2] == b'-'
-    {
-        return &stem[3..];
+#[cfg(test)]
+mod tests {
+    use tempfile::tempdir;
+
+    use super::*;
+
+    #[test]
+    fn post_names_control_order_and_urls() {
+        let directory = tempdir().unwrap();
+        write_post(directory.path(), "02-second-pin.md", "2026-08-27");
+        write_post(directory.path(), "00-first-pin.md", "2020-01-01");
+        write_post(directory.path(), "2026-08-27-01-second.md", "2026-08-27");
+        write_post(directory.path(), "2026-08-27-00-first.md", "2026-08-27");
+        write_post(directory.path(), "2026-08-27-unordered.md", "2026-08-27");
+        write_post(directory.path(), "plain.md", "2026-08-27");
+        write_post(directory.path(), "2026-08-26-older.md", "2026-08-26");
+
+        let content = discover(directory.path(), &Parser::new(), None, false).unwrap();
+        let sources = content
+            .posts
+            .iter()
+            .map(|post| post.document.source.to_str().unwrap())
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            sources,
+            [
+                "posts/00-first-pin.md",
+                "posts/02-second-pin.md",
+                "posts/2026-08-27-00-first.md",
+                "posts/2026-08-27-01-second.md",
+                "posts/2026-08-27-unordered.md",
+                "posts/plain.md",
+                "posts/2026-08-26-older.md",
+            ]
+        );
+        assert_eq!(content.posts[0].path.url, "posts/first-pin.html");
+        assert_eq!(content.posts[2].path.url, "posts/first.html");
+        assert_eq!(content.posts[4].path.url, "posts/unordered.html");
+        assert_eq!(content.posts[0].document.fallback_title, "first-pin");
+        assert!(content.posts[0].pinned);
+        assert!(content.posts[1].pinned);
+        assert!(!content.posts[2].pinned);
     }
 
-    stem
+    #[test]
+    fn date_prefix_must_match_publication_date() {
+        let directory = tempdir().unwrap();
+        write_post(directory.path(), "2026-08-27-mismatch.md", "2026-08-26");
+
+        let error = discover(directory.path(), &Parser::new(), None, false)
+            .err()
+            .unwrap()
+            .to_string();
+
+        assert!(error.contains("date prefix `2026-08-27`"));
+        assert!(error.contains("publication date `2026-08-26`"));
+    }
+
+    #[test]
+    fn positions_cannot_be_reused() {
+        let directory = tempdir().unwrap();
+        write_post(directory.path(), "00-first.md", "2026-08-27");
+        write_post(directory.path(), "00-second.md", "2026-08-26");
+
+        let error = discover(directory.path(), &Parser::new(), None, false)
+            .err()
+            .unwrap()
+            .to_string();
+
+        assert!(error.contains("same pinned position `00-`"));
+    }
+
+    fn write_post(root: &Path, name: &str, published: &str) {
+        let posts = root.join("posts");
+        fs::create_dir_all(&posts).unwrap();
+        fs::write(
+            posts.join(name),
+            format!("---\npublished: {published}\n---\n\n# {name}\n"),
+        )
+        .unwrap();
+    }
 }

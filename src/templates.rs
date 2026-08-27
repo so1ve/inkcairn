@@ -5,9 +5,11 @@ mod layout;
 mod listing;
 mod search;
 
+use std::cmp::Reverse;
+
 use crate::content::CategoryPath;
 use crate::metadata::Metadata;
-use crate::render::RenderedPage;
+use crate::render::{RenderedPage, RenderedPost};
 use crate::url_path;
 
 pub struct Build {
@@ -41,6 +43,12 @@ struct Navigation<'a> {
     href: String,
     label: &'a str,
     current: bool,
+}
+
+fn chronological_posts(posts: &[RenderedPost]) -> Vec<&RenderedPost> {
+    let mut posts = posts.iter().collect::<Vec<_>>();
+    posts.sort_by_key(|post| Reverse(post.article.published));
+    posts
 }
 
 pub struct CategoryLink<'a> {

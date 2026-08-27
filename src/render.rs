@@ -56,6 +56,7 @@ pub struct RenderedPost {
     pub article: RenderedArticle,
     pub path: PostPath,
     pub description: Option<RenderedDescription>,
+    pub pinned: bool,
 }
 
 pub struct RenderedPage {
@@ -108,6 +109,7 @@ impl Renderer {
             article,
             path: source.path,
             description,
+            pinned: source.pinned,
         })
     }
 

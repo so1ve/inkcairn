@@ -1,7 +1,7 @@
 use askama::Template;
 use time::Date;
 
-use super::{CategoryLink, PageContext, Site};
+use super::{CategoryLink, PageContext, Site, chronological_posts};
 use crate::categories::Category;
 use crate::render::RenderedPost;
 
@@ -12,6 +12,7 @@ pub struct PostLink<'a> {
     pub description: Option<&'a str>,
     pub categories: Vec<CategoryLink<'a>>,
     pub draft: bool,
+    pub pinned: bool,
 }
 
 struct ArchiveYear<'a> {
@@ -53,6 +54,7 @@ impl<'site> Site<'site> {
 
     pub fn archive<'a>(&'a self, posts: &'a [RenderedPost]) -> String {
         let mut years = Vec::<ArchiveYear<'a>>::new();
+        let posts = chronological_posts(posts);
         for post in self.post_links(posts, 0) {
             let year = post.published.year();
 
@@ -115,6 +117,7 @@ impl<'site> Site<'site> {
                     .map(|description| description.html.as_str()),
                 categories: self.category_links(&post.path.categories[category_depth..]),
                 draft: post.article.draft,
+                pinned: post.pinned,
             })
             .collect()
     }

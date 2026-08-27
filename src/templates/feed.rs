@@ -2,7 +2,7 @@ use askama::Template;
 use time::format_description::well_known::Rfc2822;
 use time::{Date, Time};
 
-use super::Site;
+use super::{Site, chronological_posts};
 use crate::render::RenderedPost;
 
 #[derive(Template)]
@@ -39,8 +39,8 @@ impl Site<'_> {
             None => &self.metadata.title,
         };
         let href = format!("{site_url}/");
-        let posts = posts
-            .iter()
+        let posts = chronological_posts(posts)
+            .into_iter()
             .map(|post| FeedItem {
                 title: &post.article.title.text,
                 href: format!("{site_url}/{}", post.path.url),

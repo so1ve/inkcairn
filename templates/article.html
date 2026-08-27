@@ -7,6 +7,7 @@
     <h1>{{ article.title.html|safe }}</h1>
     <div class="article-meta">
       <time datetime="{{ article.published }}">{{ article.published }}</time>
+      {% if pinned %}<span class="pinned-badge">Pinned</span>{% endif %}
       {% if article.updated != article.published %}<span>Updated {{ article.updated }}</span>{% endif %}
       {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
     </div>

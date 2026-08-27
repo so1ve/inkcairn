@@ -10,6 +10,7 @@ struct ArticleTemplate<'a, 'site> {
     article: &'a RenderedArticle,
     categories: Vec<CategoryLink<'a>>,
     after_content: Option<&'site str>,
+    pinned: bool,
 }
 
 impl<'site> Site<'site> {
@@ -18,11 +19,12 @@ impl<'site> Site<'site> {
             &post.path.url,
             &post.article,
             self.category_links(&post.path.categories),
+            post.pinned,
         )
     }
 
     pub fn page_article<'a>(&'a self, page: &'a RenderedPage) -> String {
-        self.article(&page.path.url, &page.article, Vec::new())
+        self.article(&page.path.url, &page.article, Vec::new(), false)
     }
 
     fn article<'a>(
@@ -30,12 +32,14 @@ impl<'site> Site<'site> {
         path: &str,
         article: &'a RenderedArticle,
         categories: Vec<CategoryLink<'a>>,
+        pinned: bool,
     ) -> String {
         ArticleTemplate {
             page: self.page(path, &article.title.text),
             article,
             categories,
             after_content: self.snippets.after_content,
+            pinned,
         }
         .render()
         .unwrap()

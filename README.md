@@ -88,17 +88,26 @@ published: 2020-04-12
 The value must use `YYYY-MM-DD`. Setting it overrides only the publication
 date; the update date still follows the latest Git or filesystem change.
 
-The filename becomes the URL:
+The filename becomes the URL and can also control the listing order:
 
 ```text
-posts/hello.md              -> /posts/hello.html
-posts/01-hello.md           -> /posts/hello.html
-posts/notes/hello.md        -> /posts/notes/hello.html
+posts/hello.md                         -> /posts/hello.html
+posts/00-welcome.md                    -> /posts/welcome.html
+posts/2026-08-27-notes.md              -> /posts/notes.html
+posts/2026-08-27-01-follow-up.md       -> /posts/follow-up.html
+posts/notes/hello.md                   -> /posts/notes/hello.html
 ```
 
-A leading two-digit prefix such as `01-` is omitted from the URL. Nested
-directories create post categories. Use `__` in a category directory name where
-its displayed name should contain a space.
+Use `00-` through `09-` to pin posts; pinned posts appear first in numeric
+order. Other posts appear by publication date, newest first. A date prefix is
+optional and must match the post's publication date. For posts published on the
+same day, add `00-` through `99-` after the date to order them; numbered posts
+appear before unnumbered posts from that day. These ordering prefixes are
+omitted from the URL and do not replace the Git, filesystem, or `published`
+date.
+
+Nested directories create post categories. Use `__` in a category directory
+name where its displayed name should contain a space.
 
 Append `.draft` to keep a post out of normal builds:
 

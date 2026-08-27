@@ -331,14 +331,22 @@ a:focus-visible {
   margin-block: 0.75em;
 }
 
-.draft-badge {
+.draft-badge,
+.pinned-badge {
   padding: 0.05rem 0.35rem;
-  color: var(--accent);
   border: 1px solid currentcolor;
   border-radius: 0.2rem;
   font-size: 0.7rem;
   font-weight: 700;
   line-height: 1.4;
+}
+
+.draft-badge {
+  color: var(--accent);
+}
+
+.pinned-badge {
+  color: var(--link);
 }
 
 .empty-state {

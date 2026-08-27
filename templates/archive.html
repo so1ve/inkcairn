@@ -13,7 +13,7 @@
               <li>
                 <time datetime="{{ post.published }}">{{ post.published }}</time>
                 <div class="post-entry">
-                  <div class="post-title"><a href="{{ post.href }}">{{ post.title|safe }}</a>{% if post.draft %}<span class="draft-badge">Draft</span>{% endif %}</div>
+                  <div class="post-title"><a href="{{ post.href }}">{{ post.title|safe }}</a>{% if post.pinned %}<span class="pinned-badge">Pinned</span>{% endif %}{% if post.draft %}<span class="draft-badge">Draft</span>{% endif %}</div>
                 </div>
               </li>
             {% endfor %}

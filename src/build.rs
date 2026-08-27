@@ -45,16 +45,9 @@ fn generate(
         }
     }
     let content = content::discover(root, &parser, git.as_ref(), include_drafts)?;
-    let mut posts = content.posts;
+    let posts = content.posts;
     let mut pages = content.pages;
 
-    posts.sort_by(|left, right| {
-        right
-            .document
-            .published
-            .cmp(&left.document.published)
-            .then_with(|| left.document.source.cmp(&right.document.source))
-    });
     pages.sort_by(|left, right| left.document.source.cmp(&right.document.source));
 
     let renderer = Renderer::new(parser);
