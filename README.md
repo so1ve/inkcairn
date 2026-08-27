@@ -1,6 +1,10 @@
 # Inkcairn
 
-A simple static blog generator for Markdown.
+Inkcairn turns a Git repository of Markdown files into a complete static blog.
+It provides a built-in layout, pages, categories, syntax highlighting, search,
+feeds, and live preview, then writes plain static files that can be hosted
+anywhere. Publication and update dates come from file history by default, so
+authors normally write no date metadata.
 
 ## Quick start
 
@@ -11,6 +15,7 @@ inkcairn init my-blog
 inkcairn dev my-blog
 ```
 
+For a new site, `init` also creates the Git repository and its first commit.
 Open <http://127.0.0.1:3201/> and start editing files in `my-blog/`. The preview
 updates when the site changes.
 
@@ -47,10 +52,6 @@ address.
 Add Markdown files to `posts/`:
 
 ```markdown
----
-published: 2026-08-27
----
-
 # Hello
 
 A short introduction to the post.
@@ -61,7 +62,29 @@ Write the rest of the post here.
 ```
 
 The first `#` heading is the title. The introductory content is shown in post
-lists. The `published` field is optional and must use `YYYY-MM-DD`.
+lists.
+
+### Dates
+
+Do not normally add a date to a post. For a committed file, Inkcairn uses its
+first Git commit as the publication date and its latest commit as the update
+date. If the file is dirty, its filesystem modification date becomes the update
+date. Untracked and non-Git files use filesystem creation and modification
+dates during preview or an `--allow-dirty` build.
+
+Use `published` only when importing an older post whose original publication
+date is not represented by its Git history:
+
+```markdown
+---
+published: 2020-04-12
+---
+
+# An older post
+```
+
+The value must use `YYYY-MM-DD`. Setting it overrides both automatically
+derived dates for that file.
 
 The filename becomes the URL:
 
@@ -133,9 +156,9 @@ with paths such as `/assets/photo.jpg`.
 Optional snippets can add shared content:
 
 ```text
-snippets/head.html       content added to every page's <head>
-snippets/home.md         content shown above the home-page post list
-snippets/after-content.md content shown after every post and page
+snippets/head.html         content added to every page's <head>
+snippets/home.md           content shown above the home-page post list
+snippets/after-content.md  content shown after every post and page
 ```
 
 Each snippet may use either `.md` or `.html`, but not both.
