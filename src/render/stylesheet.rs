@@ -1,15 +1,15 @@
 use lightningcss::printer::PrinterOptions;
 use lightningcss::stylesheet::{MinifyOptions, ParserOptions, StyleSheet};
-use syntect::highlighting::ThemeSet;
 use syntect::html::{ClassStyle, css_for_theme_with_class_style};
+use two_face::theme::{EmbeddedThemeName, extra};
 
 pub fn render() -> String {
-    let themes = ThemeSet::load_defaults();
+    let themes = extra();
     let class_style = ClassStyle::SpacedPrefixed { prefix: "syn-" };
-    let mut light = themes.themes.get("InspiredGitHub").unwrap().clone();
+    let mut light = themes.get(EmbeddedThemeName::CatppuccinLatte).clone();
     light.settings.background = None;
     let light = css_for_theme_with_class_style(&light, class_style).unwrap();
-    let mut dark = themes.themes.get("base16-ocean.dark").unwrap().clone();
+    let mut dark = themes.get(EmbeddedThemeName::CatppuccinMacchiato).clone();
     dark.settings.background = None;
     let dark = css_for_theme_with_class_style(&dark, class_style).unwrap();
     let syntax_css = format!(
