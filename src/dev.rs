@@ -14,6 +14,8 @@ use axum::http::header::{
 use axum::http::{HeaderValue, Method, StatusCode, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
+use get_port::tcp::TcpPort;
+use get_port::{Ops, Range};
 use notify::{Event as FileEvent, EventKind, RecursiveMode, Watcher};
 use tokio::sync::mpsc;
 use tower::ServiceExt;
@@ -22,6 +24,8 @@ use tower_http::services::ServeDir;
 use crate::build;
 
 const RELOAD_PATH: &str = "/_inkcairn/reload";
+const HOST: &str = "127.0.0.1";
+const DEFAULT_PORT: u16 = 3201;
 
 #[derive(Clone)]
 struct Preview {
@@ -34,7 +38,7 @@ struct PreviewState {
     revision: u64,
 }
 
-pub async fn run(requested_root: &Path, port: u16) -> Result<()> {
+pub async fn run(requested_root: &Path, port: Option<u16>) -> Result<()> {
     let root = fs::canonicalize(requested_root)?;
     let temporary = tempfile::tempdir()?;
     let directory = temporary.path().join("site");
@@ -42,7 +46,18 @@ pub async fn run(requested_root: &Path, port: u16) -> Result<()> {
         base_path: build::preview(&root, &directory)?,
         revision: 0,
     }));
-    let address = format!("127.0.0.1:{port}");
+    let port = port
+        .or_else(|| {
+            TcpPort::in_range(
+                HOST,
+                Range {
+                    min: DEFAULT_PORT,
+                    max: u16::MAX,
+                },
+            )
+        })
+        .ok_or_else(|| anyhow::anyhow!("no available TCP port found"))?;
+    let address = format!("{HOST}:{port}");
     let listener = tokio::net::TcpListener::bind(&address).await?;
     let (sender, events) = mpsc::unbounded_channel();
     let mut watcher = notify::recommended_watcher(move |event| {

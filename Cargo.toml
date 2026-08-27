@@ -13,6 +13,7 @@ axum = { version = "0.8", default-features = false, features = ["http1", "tokio"
 blake3 = "1"
 clap = { version = "4", features = ["derive"] }
 comrak = { version = "0.52", default-features = false }
+get-port = "4"
 lightningcss = { version = "1.0.0-alpha.72", default-features = false }
 notify = "8.2"
 percent-encoding = "2"

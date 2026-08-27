@@ -50,9 +50,9 @@ enum Command {
 
     /// Preview and reload the site while writing
     Dev {
-        /// Port on the loopback interface
-        #[arg(long, default_value_t = 3201)]
-        port: u16,
+        /// Use a specific port instead of finding an available one
+        #[arg(long)]
+        port: Option<u16>,
 
         #[arg(value_name = "DIRECTORY", default_value = ".")]
         directory: PathBuf,

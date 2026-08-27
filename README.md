@@ -18,8 +18,8 @@ inkcairn dev my-blog
 ```
 
 For a new site, `init` also creates the Git repository and its first commit.
-Open <http://127.0.0.1:3201/> and start editing files in `my-blog/`. The preview
-updates when the site changes.
+Open the address printed by Inkcairn and start editing files in `my-blog/`. The
+preview updates when the site changes.
 
 When the site is ready to publish:
 
@@ -185,13 +185,13 @@ Each snippet may use either `.md` or `.html`, but not both.
 
 ## Preview and build
 
-Preview on the default port:
+Preview on an automatically selected available port:
 
 ```sh
 inkcairn dev
 ```
 
-Choose another port:
+Use a specific port:
 
 ```sh
 inkcairn dev --port 8080
