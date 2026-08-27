@@ -79,25 +79,14 @@ struct Fence<'a> {
 
 impl<'a> Fence<'a> {
     fn parse(info: Option<&'a str>) -> Self {
-        let mut language = None;
-        let mut metadata = Vec::new();
-        let mut diff = false;
-        if let Some(info) = info {
-            for token in info
-                .split(',')
-                .map(str::trim)
-                .filter(|token| !token.is_empty())
-            {
-                if token == "diff" {
-                    diff = true;
-                    metadata.push(token);
-                } else if language.is_none() {
-                    language = Some(token);
-                } else {
-                    metadata.push(token);
-                }
-            }
-        }
+        let mut tokens = info
+            .into_iter()
+            .flat_map(|info| info.split(','))
+            .map(str::trim)
+            .filter(|token| !token.is_empty());
+        let language = tokens.next();
+        let metadata: Vec<_> = tokens.collect();
+        let diff = metadata.contains(&"diff");
 
         Self {
             language,
@@ -112,5 +101,39 @@ impl<'a> Fence<'a> {
             .chain(self.metadata.iter().copied())
             .collect::<Vec<_>>()
             .join(" · ")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn standalone_diff_uses_syntect() {
+        let mut output = String::new();
+
+        Highlighter::default()
+            .write_highlighted(&mut output, Some("diff"), "+added\n-deleted\n")
+            .unwrap();
+
+        assert!(output.contains("syn-inserted"));
+        assert!(output.contains("syn-deleted"));
+        assert!(output.contains(">+</span>"));
+        assert!(output.contains(">-</span>"));
+        assert!(output.contains("added"));
+        assert!(output.contains("deleted"));
+        assert!(!output.contains("diff-add"));
+    }
+
+    #[test]
+    fn diff_after_language_remains_a_modifier() {
+        let mut output = String::new();
+
+        Highlighter::default()
+            .write_highlighted(&mut output, Some("rust,diff"), "+let added = true;\n")
+            .unwrap();
+
+        assert!(output.contains("code-text diff-add"));
+        assert!(!output.contains("+let added"));
     }
 }
