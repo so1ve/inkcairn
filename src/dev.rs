@@ -83,11 +83,9 @@ async fn rebuild_on_change(
     loop {
         let mut rebuild = affects_site(root, events.recv().await.unwrap());
 
-        loop {
-            match tokio::time::timeout(Duration::from_millis(100), events.recv()).await {
-                Ok(event) => rebuild |= affects_site(root, event.unwrap()),
-                Err(_) => break,
-            }
+        while let Ok(event) = tokio::time::timeout(Duration::from_millis(100), events.recv()).await
+        {
+            rebuild |= affects_site(root, event.unwrap());
         }
 
         if rebuild {
