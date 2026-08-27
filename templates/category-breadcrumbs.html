@@ -1,0 +1,8 @@
+{% if !categories.is_empty() %}
+  <nav class="category-breadcrumbs" aria-label="Category">
+    {% for category in categories %}
+      {% if !loop.first %}<span aria-hidden="true">/</span>{% endif %}
+      <a href="{{ category.href }}">{{ category.label }}</a>
+    {% endfor %}
+  </nav>
+{% endif %}

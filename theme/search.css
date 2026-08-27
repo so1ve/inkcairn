@@ -1,0 +1,163 @@
+.search-page {
+  max-width: 42rem;
+}
+
+.search-page > h1 {
+  margin: 0;
+  color: var(--heading);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.search-form {
+  position: relative;
+  margin-top: 2rem;
+}
+
+.searching .search-form::after {
+  position: absolute;
+  top: 50%;
+  right: 2.55rem;
+  width: 0.7rem;
+  aspect-ratio: 1;
+  content: "";
+  border: 1px solid var(--border);
+  border-right-color: var(--accent);
+  border-radius: 50%;
+  animation: search-spin 0.65s linear infinite;
+  transform: translateY(-50%);
+}
+
+.search-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  padding: 0;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.search-clear:hover {
+  color: var(--heading);
+}
+
+.search-clear svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  color: var(--text);
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  font: inherit;
+}
+
+.search-form:has(.search-clear:not([hidden])) .search-input {
+  padding-right: 2.25rem;
+}
+
+.searching .search-form .search-input {
+  padding-right: 4rem;
+}
+
+.search-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.search-status {
+  min-height: 1.4em;
+  margin: 0.75rem 0 1rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+@keyframes search-spin {
+  to {
+    transform: translateY(-50%) rotate(1turn);
+  }
+}
+
+.search-results {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.search-result {
+  padding-block: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.search-result h2 {
+  margin: 0;
+  color: var(--heading);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.search-result h2 a {
+  text-decoration: none;
+}
+
+.search-result h2 a:hover {
+  color: var(--accent);
+}
+
+.search-result-breadcrumbs {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.search-result-meta {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.search-result-summary {
+  margin: 0.4rem 0 0;
+}
+
+.search-result mark {
+  color: inherit;
+  background: color-mix(in oklch, var(--accent) 32%, transparent);
+}
+
+.search-more {
+  padding: 0;
+  margin-top: 1rem;
+  color: inherit;
+  background: none;
+  border: 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--link);
+  text-underline-offset: 0.16em;
+  cursor: pointer;
+}
+
+.search-more:hover {
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+}

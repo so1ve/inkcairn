@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="listing-page">
+  <h1>Posts</h1>
+  {% if !categories.is_empty() %}
+    {% let category_section_title = "Categories" %}
+    {% include "category-list-section.html" %}
+  {% endif %}
+  {% if !posts.is_empty() %}
+    {% let post_section_title = "All posts" %}
+    {% include "post-list-section.html" %}
+  {% else %}
+    <p class="empty-state">No posts yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,5 +1,4 @@
-/target
-/dist
-/dist-*
-/public
-/.vellum/cache
+.devenv/
+.direnv/
+/target/
+/demo/dist/

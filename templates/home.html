@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% if let Some(home) = page.site.snippets.home %}<section class="home-content markdown-body">{{ home|safe }}</section>{% endif %}
+<section class="post-section">
+  <header class="post-section-header">
+    <h2>Recent Posts</h2>
+    <a href="{{ page.site.root_url }}/posts.html">All posts <span aria-hidden="true">→</span></a>
+  </header>
+  {% if !posts.is_empty() %}
+    {% include "post-list.html" %}
+  {% else %}
+    <p class="empty-state">No posts yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

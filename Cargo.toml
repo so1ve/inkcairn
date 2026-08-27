@@ -1,55 +1,69 @@
-[workspace]
-resolver = "3"
-members = ["crates/*"]
-
-[workspace.package]
+[package]
+name = "inkcairn"
 version = "0.1.0"
-authors = ["Ray <i@mk1.io>"]
 edition = "2024"
-repository = "https://github.com/so1ve/vellum"
+description = "An opinionated Markdown blog generator"
+repository = "https://github.com/so1ve/inkcairn"
 license = "MIT"
 
-[workspace.dependencies]
+[dependencies]
+anyhow = "1"
 askama = "0.16"
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+blake3 = "1"
+clap = { version = "4", features = ["derive"] }
 comrak = { version = "0.52", default-features = false }
+lightningcss = { version = "1.0.0-alpha.72", default-features = false }
+notify = "8.2"
+percent-encoding = "2"
 rayon = "1"
-syntect = { version = "5", default-features = false, features = ["default-fancy"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+syntect = {
+  version = "5",
+  default-features = false,
+  features = ["default-fancy"]
+}
+time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde-human-readable"] }
+tempfile = "3"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.7", features = ["fs"] }
+yaml_serde = "0.10"
 
-[workspace.lints.clippy]
+[lints.clippy]
 all = "warn"
-clone-on-ref-ptr = "warn"
-default-trait-access = "warn"
-enum-glob-use = "warn"
-fn-params-excessive-bools = "warn"
-format-collect = "warn"
-format-push-string = "warn"
-implicit-clone = "warn"
-items-after-statements = "warn"
-manual-let-else = "warn"
-manual-string-new = "warn"
-match-same-arms = "warn"
-match-wildcard-for-single-variants = "warn"
-missing-const-for-fn = "warn"
-must-use-candidate = "warn"
-needless-pass-by-value = "warn"
-redundant-pub-crate = "warn"
-semicolon-if-nothing-returned = "warn"
-single-match-else = "warn"
-struct-excessive-bools = "warn"
+clone_on_ref_ptr = "warn"
+default_trait_access = "warn"
+disallowed_methods = "warn"
+enum_glob_use = "warn"
+fn_params_excessive_bools = "warn"
+format_collect = "warn"
+format_push_string = "warn"
+implicit_clone = "warn"
+items_after_statements = "warn"
+manual_let_else = "warn"
+manual_string_new = "warn"
+match_same_arms = "warn"
+match_wildcard_for_single_variants = "warn"
+missing_const_for_fn = "warn"
+must_use_candidate = "warn"
+needless_pass_by_value = "warn"
+redundant_pub_crate = "warn"
+semicolon_if_nothing_returned = "warn"
+single_match_else = "warn"
+struct_excessive_bools = "warn"
 undocumented_unsafe_blocks = "warn"
-uninlined-format-args = "warn"
-unnecessary-literal-bound = "warn"
-use-self = "warn"
-verbose-file-reads = "warn"
-wildcard-imports = "warn"
+uninlined_format_args = "warn"
+unnecessary_literal_bound = "warn"
+use_self = "warn"
+verbose_file_reads = "warn"
+wildcard_imports = "warn"
 
-[profile.dev]
-opt-level = 0
-debug = true
+[lints.rust]
+unsafe_code = "forbid"
 
 [profile.release]
-opt-level = 2
-strip = true
-lto = true
+lto = "thin"
 panic = "abort"
-codegen-units = 1
+strip = "symbols"

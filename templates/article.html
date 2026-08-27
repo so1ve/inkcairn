@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<article class="article">
+  <header class="article-header">
+    {% include "category-breadcrumbs.html" %}
+    <h1>{{ article.title.html|safe }}</h1>
+    <div class="article-meta">
+      {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
+      <time datetime="{{ article.published }}">{{ article.published }}</time>
+      {% if article.updated != article.published %}<span>Updated {{ article.updated }}</span>{% endif %}
+    </div>
+  </header>
+  <div class="article-content">
+    {% if !article.outline.is_empty() %}
+      <aside class="article-outline" aria-label="On this page">
+        <p class="outline-title">On this page</p>
+        <ol>
+          {% for heading in article.outline %}<li class="outline-level-{{ heading.level }}"><a href="#{{ heading.id }}">{{ heading.title }}</a></li>{% endfor %}
+        </ol>
+      </aside>
+    {% endif %}
+    <div class="article-main">
+      <div class="markdown-body">{{ article.html|safe }}</div>
+      {% if let Some(after_content) = after_content %}<div class="after-content">{{ after_content|safe }}</div>{% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}

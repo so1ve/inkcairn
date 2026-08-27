@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="listing-page">
+  <h1>Archive</h1>
+  {% if !years.is_empty() %}
+    <div class="archive-years">
+      {% for year in years %}
+        <section class="archive-year">
+          <h2>{{ year.year }}</h2>
+          <ol class="post-list">
+            {% for post in year.posts %}
+              <li>
+                <time datetime="{{ post.published }}">{{ post.published }}</time>
+                <div class="post-entry">
+                  <div class="post-title"><a href="{{ post.href }}">{{ post.title|safe }}</a>{% if post.draft %}<span class="draft-badge">Draft</span>{% endif %}</div>
+                </div>
+              </li>
+            {% endfor %}
+          </ol>
+        </section>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">No posts yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

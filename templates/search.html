@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ page.site.root_url }}/search.css">
+<script type="module" src="{{ page.site.root_url }}/search.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="search-page">
+  <h1>Search</h1>
+  <form class="search-form" role="search">
+    <button class="search-clear" type="button" aria-label="Clear search" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+    </button>
+    <input class="search-input" name="q" type="search" aria-label="Search posts and pages" aria-describedby="search-status" placeholder="Search posts and pages…" autocomplete="off" spellcheck="false">
+  </form>
+  <p class="search-status" id="search-status" aria-live="polite"></p>
+  <ol class="search-results"></ol>
+  <button class="search-more" type="button" hidden>More results</button>
+</section>
+{% endblock %}

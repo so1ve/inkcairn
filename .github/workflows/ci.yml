@@ -1,43 +1,20 @@
 name: CI
 
 on:
+  pull_request: {}
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
+  workflow_dispatch: {}
 
 permissions:
   contents: read
 
 jobs:
   rust:
-    name: Rust checks (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-22.04
-          - macos-latest
-          - windows-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install Rust nightly
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: clippy, rustfmt
-
-      - name: Cache Cargo
-        uses: Swatinem/rust-cache@v2
-
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-
-      - name: Check workspace
-        run: cargo check --workspace --all-targets
-
-      - name: Lint workspace
-        run: cargo clippy --workspace --all-targets -- -D warnings
+    name: Rust
+    uses: so1ve/workflows/.github/workflows/rust-ci.yml@v1
+    with:
+      toolchain: nightly
+      runs-on: ubuntu-24.04
+      runs-on-matrix: '"ubuntu-24.04"'

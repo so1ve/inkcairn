@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="listing-page">
+  {% include "category-heading.html" %}
+  {% if !categories.is_empty() %}
+    {% let category_section_title = "Subcategories" %}
+    {% include "category-list-section.html" %}
+  {% endif %}
+  {% if !posts.is_empty() %}
+    {% let post_section_title = "Posts" %}
+    {% include "post-list-section.html" %}
+  {% endif %}
+</section>
+{% endblock %}

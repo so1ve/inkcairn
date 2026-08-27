@@ -1,0 +1,6 @@
+<h1 class="category-heading">
+  {% for ancestor in ancestors %}
+    <a href="{{ ancestor.href }}">{{ ancestor.label }}</a><span aria-hidden="true">/</span>
+  {% endfor %}
+  <span>{{ current }}</span>
+</h1>
