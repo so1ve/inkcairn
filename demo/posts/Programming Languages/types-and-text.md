@@ -1,7 +1,3 @@
----
-published: 2026-08-24
----
-
 # Types and text
 
 Text is rarely “just a string.” The moment a program needs to compare, display,

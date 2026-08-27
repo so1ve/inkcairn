@@ -1,7 +1,3 @@
----
-published: 2024-04-21
----
-
 # What a type name promises
 
 A type name is a small promise about the values a program may contain. When the

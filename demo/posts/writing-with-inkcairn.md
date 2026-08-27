@@ -1,7 +1,3 @@
----
-published: 2026-08-26
----
-
 # Writing with Inkcairn
 
 The part I like most about Inkcairn is deliberately unremarkable: the source is

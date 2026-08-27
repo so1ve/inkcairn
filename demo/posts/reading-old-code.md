@@ -1,7 +1,3 @@
----
-published: 2025-02-03
----
-
 # Reading old code slowly
 
 Old code is easiest to misunderstand when approached as a cleanup exercise.

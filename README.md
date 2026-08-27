@@ -83,8 +83,8 @@ published: 2020-04-12
 # An older post
 ```
 
-The value must use `YYYY-MM-DD`. Setting it overrides both automatically
-derived dates for that file.
+The value must use `YYYY-MM-DD`. Setting it overrides only the publication
+date; the update date still follows the latest Git or filesystem change.
 
 The filename becomes the URL:
 

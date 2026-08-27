@@ -1,7 +1,3 @@
----
-published: 2025-11-08
----
-
 # Defaults are part of the interface
 
 A default is a decision made on behalf of every person who does not stop to

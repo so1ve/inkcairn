@@ -1,7 +1,3 @@
----
-published: 2026-08-20
----
-
 # Small notes for late summer
 
 Three observations that were too small for separate essays but worth keeping.

@@ -1,7 +1,3 @@
----
-published: 2024-10-12
----
-
 # Tools that disappear
 
 The small tools I trust most become almost invisible during use. They preserve

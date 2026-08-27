@@ -199,10 +199,8 @@ fn parse_document(
         Some("") | None => Frontmatter::default(),
         Some(frontmatter) => yaml_serde::from_str(frontmatter)?,
     };
-    let (published, updated) = match frontmatter.published {
-        Some(published) => (published, published),
-        None => infer_dates(source_path, git)?,
-    };
+    let (inferred_published, updated) = infer_dates(source_path, git)?;
+    let published = frontmatter.published.unwrap_or(inferred_published);
     let source = source_path.strip_prefix(root).unwrap().to_owned();
 
     Ok((

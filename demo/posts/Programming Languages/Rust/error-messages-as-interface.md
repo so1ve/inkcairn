@@ -1,7 +1,3 @@
----
-published: 2025-06-17
----
-
 # Error messages are part of the interface
 
 An error variant may be designed for a program, but its final message is read by

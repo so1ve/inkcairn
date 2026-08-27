@@ -1,7 +1,3 @@
----
-published: 2026-08-25
----
-
 # Borrowing notes
 
 Borrowing is easiest to understand as a statement about relationships rather
