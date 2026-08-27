@@ -19,11 +19,7 @@ percent-encoding = "2"
 rayon = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-syntect = {
-  version = "5",
-  default-features = false,
-  features = ["default-fancy"]
-}
+syntect = { version = "5", default-features = false, features = ["default-fancy"] }
 time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde-human-readable"] }
 tempfile = "3"
 tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
