@@ -6,10 +6,10 @@ use two_face::theme::{EmbeddedThemeName, extra};
 pub fn render() -> String {
     let themes = extra();
     let class_style = ClassStyle::SpacedPrefixed { prefix: "syn-" };
-    let mut light = themes.get(EmbeddedThemeName::CatppuccinLatte).clone();
+    let mut light = themes.get(EmbeddedThemeName::OneHalfLight).clone();
     light.settings.background = None;
     let light = css_for_theme_with_class_style(&light, class_style).unwrap();
-    let mut dark = themes.get(EmbeddedThemeName::CatppuccinMacchiato).clone();
+    let mut dark = themes.get(EmbeddedThemeName::OneHalfDark).clone();
     dark.settings.background = None;
     let dark = css_for_theme_with_class_style(&dark, class_style).unwrap();
     let syntax_css = format!(
