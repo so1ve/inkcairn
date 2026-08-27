@@ -170,30 +170,38 @@ Each snippet may use either `.md` or `.html`, but not both.
 Preview on the default port:
 
 ```sh
-inkcairn dev my-blog
+inkcairn dev
 ```
 
 Choose another port:
 
 ```sh
-inkcairn dev --port 8080 my-blog
+inkcairn dev --port 8080
 ```
 
 Create a production build in `dist/`:
 
 ```sh
-inkcairn build my-blog
+inkcairn build
 ```
 
 A normal build requires a clean Git worktree. To build uncommitted, untracked,
 or non-Git content:
 
 ```sh
-inkcairn build --allow-dirty my-blog
+inkcairn build --allow-dirty
 ```
 
 To include files ending in `.draft.md`:
 
 ```sh
-inkcairn build --include-drafts my-blog
+inkcairn build --include-drafts
 ```
+
+## Credits
+
+Theme is based on [Cactus](https://github.com/probberechts/hexo-theme-cactus)
+
+## LICENSE
+
+MIT. Made with ❤️ by [Ray](https://github.com/so1ve)
