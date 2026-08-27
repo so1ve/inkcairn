@@ -53,12 +53,40 @@ fn minify(source: &str, filename: &str) -> String {
 fn prefix_syntax_css(css: &str, prefix: &str) -> String {
     css.lines()
         .map(|line| {
-            if line.starts_with('.') {
-                format!("{prefix}{line}")
-            } else {
-                line.to_owned()
+            if !line.trim_start().starts_with('.') {
+                return line.to_owned();
             }
+            let Some((selectors, declarations)) = line.split_once('{') else {
+                return line.to_owned();
+            };
+            let selectors = selectors
+                .split(',')
+                .map(|selector| format!("{prefix}{}", selector.trim()))
+                .collect::<Vec<_>>()
+                .join(",");
+
+            format!("{selectors}{{{declarations}")
         })
         .collect::<Vec<_>>()
         .join("\n")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn prefixes_every_syntax_selector() {
+        assert_eq!(
+            prefix_syntax_css(
+                ".syn-code, .syn-text, .syn-source { color: red; }",
+                ":root[data-theme=\"dark\"] .markdown-body ",
+            ),
+            concat!(
+                ":root[data-theme=\"dark\"] .markdown-body .syn-code,",
+                ":root[data-theme=\"dark\"] .markdown-body .syn-text,",
+                ":root[data-theme=\"dark\"] .markdown-body .syn-source{ color: red; }",
+            )
+        );
+    }
 }
