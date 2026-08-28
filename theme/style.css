@@ -743,6 +743,7 @@ a:focus-visible {
   padding: calc(var(--code-header-height) + var(--code-content-padding)) 0 0;
   overflow-x: auto;
   overflow-y: hidden;
+  font-family: inherit;
   font-size: 0.82rem;
 }
 
