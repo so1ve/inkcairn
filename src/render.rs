@@ -14,13 +14,9 @@ mod devices;
 mod friends;
 mod headings;
 mod highlight;
-mod stylesheet;
 
 use headings::Headings;
 use highlight::Highlighter;
-pub use stylesheet::{
-    comments as comments_stylesheet, render as stylesheet, search as search_stylesheet,
-};
 
 pub struct OutlineEntry {
     pub level: u8,

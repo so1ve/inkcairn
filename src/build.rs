@@ -2,16 +2,38 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Result, bail};
+use lightningcss::printer::PrinterOptions;
+use lightningcss::stylesheet::{MinifyOptions, ParserOptions, StyleSheet};
 use rayon::prelude::*;
 
 use crate::git::GitIndex;
 use crate::metadata::Metadata;
 use crate::output::{OutputFile, SiteOutput};
 use crate::parser::Parser;
-use crate::render::{
-    RenderedPage, RenderedPost, Renderer, comments_stylesheet, search_stylesheet, stylesheet,
-};
+use crate::render::{RenderedPage, RenderedPost, Renderer};
 use crate::{categories, comments, content, search, templates, url_path};
+
+macro_rules! resource {
+    ($path:literal, $bytes:expr) => {
+        OutputFile {
+            path: PathBuf::from($path),
+            bytes: $bytes,
+            source: None,
+        }
+    };
+    ($path:literal) => {
+        resource!($path, include_bytes!(concat!("../theme/", $path)).to_vec())
+    };
+}
+
+macro_rules! stylesheet {
+    ($path:literal) => {
+        resource!(
+            $path,
+            minify_stylesheet(include_str!(concat!("../theme/", $path)), $path)
+        )
+    };
+}
 
 pub fn build(root: &Path, allow_dirty: bool, include_drafts: bool) -> Result<PathBuf> {
     let root = fs::canonicalize(root)?;
@@ -122,27 +144,11 @@ fn generate(
         source: None,
     });
     render_categories(&mut files, &categories, &posts, &site);
-    files.push(OutputFile {
-        path: PathBuf::from("style.css"),
-        bytes: stylesheet().into_bytes(),
-        source: None,
-    });
-    files.push(OutputFile {
-        path: PathBuf::from("script.js"),
-        bytes: include_bytes!("../theme/script.js").to_vec(),
-        source: None,
-    });
+    files.push(stylesheet!("style.css"));
+    files.push(resource!("script.js"));
     if metadata.comments.is_some() {
-        files.push(OutputFile {
-            path: PathBuf::from("comments.css"),
-            bytes: comments_stylesheet().into_bytes(),
-            source: None,
-        });
-        files.push(OutputFile {
-            path: PathBuf::from("comments.js"),
-            bytes: include_bytes!("../theme/comments.js").to_vec(),
-            source: None,
-        });
+        files.push(stylesheet!("comments.css"));
+        files.push(resource!("comments.js"));
     }
     // search
     files.push(OutputFile {
@@ -150,21 +156,9 @@ fn generate(
         bytes: site.search_page().into_bytes(),
         source: None,
     });
-    files.push(OutputFile {
-        path: PathBuf::from("search.js"),
-        bytes: include_bytes!("../theme/search.js").to_vec(),
-        source: None,
-    });
-    files.push(OutputFile {
-        path: PathBuf::from("minisearch.js"),
-        bytes: include_bytes!("../theme/minisearch.js").to_vec(),
-        source: None,
-    });
-    files.push(OutputFile {
-        path: PathBuf::from("search.css"),
-        bytes: search_stylesheet().into_bytes(),
-        source: None,
-    });
+    files.push(resource!("search.js"));
+    files.push(resource!("minisearch.js"));
+    files.push(stylesheet!("search.css"));
     files.push(search::documents(&posts, &pages));
 
     let mut output = SiteOutput::new(root, files, git.as_ref());
@@ -263,4 +257,24 @@ fn render_categories(
         });
         render_categories(files, &category.children, posts, site);
     }
+}
+
+fn minify_stylesheet(source: &str, filename: &str) -> Vec<u8> {
+    let mut stylesheet = StyleSheet::parse(
+        source,
+        ParserOptions {
+            filename: filename.to_owned(),
+            ..ParserOptions::default()
+        },
+    )
+    .unwrap();
+    stylesheet.minify(MinifyOptions::default()).unwrap();
+    let css = stylesheet
+        .to_css(PrinterOptions {
+            minify: true,
+            ..PrinterOptions::default()
+        })
+        .unwrap();
+
+    css.code.into_bytes()
 }
