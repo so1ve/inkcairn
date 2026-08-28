@@ -47,6 +47,26 @@ impl OutputFile {
     }
 }
 
+fn minify_stylesheet(source: &str, filename: &str) -> Vec<u8> {
+    let mut stylesheet = StyleSheet::parse(
+        source,
+        ParserOptions {
+            filename: filename.to_owned(),
+            ..ParserOptions::default()
+        },
+    )
+    .unwrap();
+    stylesheet.minify(MinifyOptions::default()).unwrap();
+    let css = stylesheet
+        .to_css(PrinterOptions {
+            minify: true,
+            ..PrinterOptions::default()
+        })
+        .unwrap();
+
+    css.code.into_bytes()
+}
+
 pub struct SiteOutput<'a> {
     root: &'a Path,
     files: Vec<OutputFile>,
@@ -231,24 +251,4 @@ fn collect_files(directory: &Path, output: &mut Vec<PathBuf>) -> Result<()> {
 
 fn path_to_url(path: &Path) -> String {
     path.to_str().unwrap().replace('\\', "/")
-}
-
-fn minify_stylesheet(source: &str, filename: &str) -> Vec<u8> {
-    let mut stylesheet = StyleSheet::parse(
-        source,
-        ParserOptions {
-            filename: filename.to_owned(),
-            ..ParserOptions::default()
-        },
-    )
-    .unwrap();
-    stylesheet.minify(MinifyOptions::default()).unwrap();
-    let css = stylesheet
-        .to_css(PrinterOptions {
-            minify: true,
-            ..PrinterOptions::default()
-        })
-        .unwrap();
-
-    css.code.into_bytes()
 }
