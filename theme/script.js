@@ -9,10 +9,10 @@ document.getElementById("theme-toggle")?.addEventListener("click", () => {
 
 document.addEventListener("click", event => {
   const button = event.target.closest(".copy-code");
-  if (button) copyCode(button);
+  if (button) copyCode(button, event.detail > 0);
 });
 
-async function copyCode(button) {
+async function copyCode(button, releaseFocus) {
   const code = button.parentElement.querySelectorAll(".code-text:not(.diff-del)");
   const text = [...code].map(line => line.textContent).join("\n");
 
@@ -24,6 +24,8 @@ async function copyCode(button) {
 
   button.dataset.copied = "";
   button.ariaLabel = "Copied";
+  if (releaseFocus) button.blur();
+
   setTimeout(() => {
     delete button.dataset.copied;
     button.ariaLabel = "Copy code";

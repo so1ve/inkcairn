@@ -640,31 +640,25 @@ a:focus-visible {
   tab-size: 2;
 }
 
-.markdown-body pre[data-meta]::before {
+.markdown-body pre[data-language]::before {
   position: absolute;
   top: var(--code-control-inset);
   right: calc(
     var(--code-control-size) + var(--code-control-inset) + var(--code-control-inset)
   );
   display: none;
-  align-items: center;
-  box-sizing: border-box;
   max-width: calc(
     100% - var(--code-control-size) - var(--code-control-inset) -
       var(--code-control-inset) - var(--code-control-inset)
   );
   height: var(--code-control-size);
-  padding-inline: 0.45rem;
   overflow: hidden;
   color: var(--muted);
-  background: var(--surface);
-  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
-  border-radius: 999px;
-  content: attr(data-meta);
+  content: attr(data-language);
   font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: var(--code-control-size);
   pointer-events: none;
   text-overflow: ellipsis;
   user-select: none;
@@ -683,14 +677,16 @@ a:focus-visible {
   appearance: none;
   color: var(--muted);
   cursor: pointer;
-  background: var(--surface);
-  border: 1px solid color-mix(in oklch, var(--border) 70%, transparent);
-  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  border-radius: 0.25rem;
   place-items: center;
 }
 
-.copy-code:hover {
+.copy-code:hover,
+.copy-code:focus-visible {
   color: var(--heading);
+  background: color-mix(in oklch, var(--border) 45%, transparent);
 }
 
 .copy-code svg {
@@ -717,8 +713,8 @@ a:focus-visible {
 }
 
 @media (hover: hover) {
-  .markdown-body pre[data-meta]::before {
-    display: flex;
+  .markdown-body pre[data-language]::before {
+    display: block;
     opacity: 0;
   }
 

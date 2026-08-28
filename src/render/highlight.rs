@@ -31,9 +31,10 @@ impl SyntaxHighlighterAdapter for Highlighter {
         output: &mut dyn fmt::Write,
         mut attributes: HashMap<&'static str, Cow<'_, str>>,
     ) -> fmt::Result {
-        if let Some(info) = attributes.remove("lang") {
-            let label = Fence::parse(Some(info.as_ref())).label();
-            attributes.insert("data-meta", Cow::Owned(label));
+        if let Some(info) = attributes.remove("lang")
+            && let Some(language) = Fence::parse(Some(info.as_ref())).language
+        {
+            attributes.insert("data-language", Cow::Owned(language.to_owned()));
         }
 
         write_opening_tag(output, "pre", attributes)?;
@@ -51,7 +52,6 @@ impl SyntaxHighlighterAdapter for Highlighter {
 
 struct Fence<'a> {
     language: Option<&'a str>,
-    metadata: Vec<&'a str>,
     diff: bool,
 }
 
@@ -63,21 +63,8 @@ impl<'a> Fence<'a> {
             .map(str::trim)
             .filter(|token| !token.is_empty());
         let language = tokens.next();
-        let metadata: Vec<_> = tokens.collect();
-        let diff = metadata.contains(&"diff");
+        let diff = tokens.any(|token| token == "diff");
 
-        Self {
-            language,
-            metadata,
-            diff,
-        }
-    }
-
-    fn label(&self) -> String {
-        self.language
-            .into_iter()
-            .chain(self.metadata.iter().copied())
-            .collect::<Vec<_>>()
-            .join(" · ")
+        Self { language, diff }
     }
 }
