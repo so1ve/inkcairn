@@ -155,10 +155,7 @@ impl GitHub<'_> {
             return Ok(None);
         }
 
-        let mut replies = comment
-            .replies
-            .take()
-            .expect("the top-level comment query always includes replies");
+        let mut replies = comment.replies.take().unwrap();
         while replies.page_info.has_next_page {
             let data = self.request::<NodeData<ApiReplyList>>(
                 REPLIES_QUERY,

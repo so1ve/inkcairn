@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use anyhow::{Context, Result};
+use comrak::html::escape;
 use comrak::options::Plugins;
 use comrak::{Arena, Node, format_html_with_plugins};
 use time::Date;
@@ -134,6 +135,9 @@ impl Renderer {
         let arena = Arena::new();
         let root = self.parser.parse(&arena, &source.markdown);
         let title_heading = Parser::title_heading(root);
+        let mut fallback_title_html = String::new();
+        // fallback title is plaintext. escape if it contains any HTML
+        escape(&mut fallback_title_html, &source.fallback_title).unwrap();
         let title = match title_heading {
             Some(heading) => {
                 let text = Parser::plain_text([heading]);
@@ -148,7 +152,7 @@ impl Renderer {
                         text
                     },
                     html: if html.trim().is_empty() {
-                        escape_html(&source.fallback_title)
+                        fallback_title_html
                     } else {
                         html
                     },
@@ -156,7 +160,7 @@ impl Renderer {
             }
             None => RenderedTitle {
                 text: source.fallback_title.clone(),
-                html: escape_html(&source.fallback_title),
+                html: fallback_title_html,
             },
         };
         let description = if extract_description {
@@ -242,20 +246,4 @@ impl Renderer {
 
         Ok(html)
     }
-}
-
-fn escape_html(value: &str) -> String {
-    let mut html = String::new();
-    for character in value.chars() {
-        match character {
-            '&' => html.push_str("&amp;"),
-            '<' => html.push_str("&lt;"),
-            '>' => html.push_str("&gt;"),
-            '"' => html.push_str("&quot;"),
-            '\'' => html.push_str("&#39;"),
-            _ => html.push(character),
-        }
-    }
-
-    html
 }
