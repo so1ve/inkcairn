@@ -8,7 +8,7 @@ use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::html::write_opening_tag;
 use syntect::parsing::SyntaxSet;
 
-const COPY_BUTTON: &str = r#"<button class="copy-code" type="button" aria-label="Copy code" title="Copy code"><svg class="copy-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8" height="8" rx="1"></rect><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"></path></svg><svg class="copy-success" viewBox="0 0 16 16" aria-hidden="true"><path d="m2.5 8 3 3 8-8"></path></svg></button>"#;
+const COPY_BUTTON: &str = r#"<button class="copy-code" type="button" aria-label="Copy code" title="Copy code"><svg class="copy-icon" viewBox="0 0 16 16" aria-hidden="true"><g transform="translate(1 1)"><rect x="5" y="5" width="8" height="8" rx="1"></rect><path d="M3 11H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1"></path></g></svg><svg class="copy-success" viewBox="0 0 16 16" aria-hidden="true"><path d="m2.5 8 3 3 8-8"></path></svg></button>"#;
 
 pub struct Highlighter {
     syntaxes: SyntaxSet,
