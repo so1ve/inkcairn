@@ -60,7 +60,7 @@ pub fn documents(posts: &[RenderedPost], pages: &[RenderedPage]) -> OutputFile {
                 url,
                 title,
                 breadcrumbs,
-                published: Some(post.article.published),
+                published: Some(post.article.published.date()),
                 repost: post.repost.is_some(),
                 categories: categories.clone(),
                 content,

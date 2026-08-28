@@ -10,7 +10,7 @@
         <link>{{ post.href }}</link>
         <guid>{{ post.href }}</guid>
         <pubDate>{{ post.published }}</pubDate>
-        {% if post.repost.is_some() || post.description.is_some() %}<description>{% if let Some(repost) = post.repost %}{% let original_title = repost.title.as_deref().unwrap_or("the original article") %}Reposted from {{ original_title }} by {{ repost.author }}{% if let Some(published) = repost.published %}, published {{ published }}{% endif %}{% if let Some(url) = repost.url.as_deref() %}: {{ url }}{% endif %}. {% endif %}{% if let Some(description) = post.description %}{{ description }}{% endif %}</description>{% endif %}
+        {% if post.repost.is_some() || post.description.is_some() %}<description>{% if let Some(repost) = post.repost %}{% let original_title = repost.title.as_deref().unwrap_or("the original article") %}Reposted from {{ original_title }} by {{ repost.author }}{% if let Some(published) = post.repost_published %}, published {{ published }}{% endif %}{% if let Some(url) = repost.url.as_deref() %}: {{ url }}{% endif %}. {% endif %}{% if let Some(description) = post.description %}{{ description }}{% endif %}</description>{% endif %}
         <content:encoded>{{ post.content }}</content:encoded>
       </item>
     {% endfor %}

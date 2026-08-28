@@ -8,7 +8,8 @@ use crate::render::RenderedPost;
 pub struct PostLink<'a> {
     pub href: String,
     pub title: &'a str,
-    pub published: Date,
+    pub published: String,
+    pub published_date: Date,
     pub description: Option<&'a str>,
     pub categories: Vec<CategoryLink<'a>>,
     pub draft: bool,
@@ -57,7 +58,7 @@ impl<'site> Site<'site> {
         let mut years = Vec::<ArchiveYear<'a>>::new();
         let posts = chronological_posts(posts);
         for post in self.post_links(posts, 0) {
-            let year = post.published.year();
+            let year = post.published_date.year();
 
             if let Some(group) = years.last_mut()
                 && group.year == year
@@ -111,7 +112,8 @@ impl<'site> Site<'site> {
             .map(|post| PostLink {
                 href: self.href(&post.path.url),
                 title: &post.article.title.html,
-                published: post.article.published,
+                published: crate::date_time::rfc3339(post.article.published),
+                published_date: post.article.published.date(),
                 description: post
                     .description
                     .as_ref()

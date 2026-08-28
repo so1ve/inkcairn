@@ -2,12 +2,12 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use time::Date;
-use time::macros::format_description;
+use time::OffsetDateTime;
+use time::format_description::well_known::Rfc3339;
 
 pub struct FileInfo {
-    pub created_at: Date,
-    pub updated_at: Date,
+    pub created_at: OffsetDateTime,
+    pub updated_at: OffsetDateTime,
     pub dirty: bool,
 }
 
@@ -112,7 +112,7 @@ impl GitIndex {
         let output = self
             .repository
             .command()
-            .args(["log", "--follow", "--reverse", "--format=%cs"])
+            .args(["log", "--follow", "--reverse", "--format=%cI"])
             .arg("--")
             .arg(relative)
             .output()?;
@@ -124,10 +124,9 @@ impl GitIndex {
         let Some(created_at) = dates.next() else {
             return Ok(None);
         };
-        let format = format_description!("[year]-[month]-[day]");
-        let created_at = Date::parse(created_at, format).unwrap();
+        let created_at = OffsetDateTime::parse(created_at, &Rfc3339).unwrap();
         let updated_at = match dates.next_back() {
-            Some(date) => Date::parse(date, format).unwrap(),
+            Some(date) => OffsetDateTime::parse(date, &Rfc3339).unwrap(),
             None => created_at,
         };
 

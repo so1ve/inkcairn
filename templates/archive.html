@@ -11,7 +11,7 @@
           <ol class="post-list">
             {% for post in year.posts %}
               <li>
-                <time datetime="{{ post.published }}">{{ post.published }}</time>
+                <time datetime="{{ post.published }}">{{ post.published_date }}</time>
                 <div class="post-entry">
                   <div class="post-title"><a href="{{ post.href }}">{{ post.title|safe }}</a>{% if post.pinned %}<span class="pinned-badge">Pinned</span>{% endif %}{% if post.repost %}<span class="repost-badge">Repost</span>{% endif %}{% if post.draft %}<span class="draft-badge">Draft</span>{% endif %}</div>
                 </div>

@@ -5,7 +5,7 @@ use anyhow::{Context, Result};
 use comrak::html::escape;
 use comrak::options::Plugins;
 use comrak::{Arena, Node, format_html_with_plugins};
-use time::Date;
+use time::OffsetDateTime;
 
 use crate::content::{Document, Page, PagePath, Post, PostPath, Repost};
 use crate::parser::Parser;
@@ -43,8 +43,8 @@ pub struct RenderedSection {
 pub struct RenderedArticle {
     pub source: PathBuf,
     pub draft: bool,
-    pub published: Date,
-    pub updated: Date,
+    pub published: OffsetDateTime,
+    pub updated: OffsetDateTime,
     pub title: RenderedTitle,
     pub html: String,
     pub outline: Vec<OutlineEntry>,

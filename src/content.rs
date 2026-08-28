@@ -1,11 +1,12 @@
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::time::SystemTime;
 
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde::de::DeserializeOwned;
-use time::{Date, OffsetDateTime};
+use time::OffsetDateTime;
 
 use crate::git::GitIndex;
 use crate::parser::Parser;
@@ -37,15 +38,16 @@ pub struct Repost {
     pub url: Option<String>,
     pub title: Option<String>,
     pub author: String,
-    pub published: Option<Date>,
+    #[serde(default, with = "crate::date_time::option")]
+    pub published: Option<OffsetDateTime>,
 }
 
 pub struct Document {
     pub source: PathBuf,
     pub fallback_title: String,
     pub draft: bool,
-    pub published: Date,
-    pub updated: Date,
+    pub published: OffsetDateTime,
+    pub updated: OffsetDateTime,
     pub markdown: String,
 }
 
@@ -116,14 +118,16 @@ impl PagePath {
 #[derive(Default, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PostFrontmatter {
-    published: Option<Date>,
+    #[serde(default, with = "crate::date_time::option")]
+    published: Option<OffsetDateTime>,
     repost: Option<Repost>,
 }
 
 #[derive(Default, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PageFrontmatter {
-    published: Option<Date>,
+    #[serde(default, with = "crate::date_time::option")]
+    published: Option<OffsetDateTime>,
 }
 
 pub fn discover(
@@ -274,7 +278,7 @@ fn document(
     git: Option<&GitIndex>,
     fallback_title: &str,
     draft: bool,
-    published: Option<Date>,
+    published: Option<OffsetDateTime>,
     markdown: String,
 ) -> Result<Document> {
     let (inferred_published, updated) = infer_dates(source_path, git)?;
@@ -312,7 +316,7 @@ fn collect_markdown(directory: &Path, output: &mut Vec<PathBuf>) -> Result<()> {
     Ok(())
 }
 
-fn infer_dates(path: &Path, git: Option<&GitIndex>) -> Result<(Date, Date)> {
+fn infer_dates(path: &Path, git: Option<&GitIndex>) -> Result<(OffsetDateTime, OffsetDateTime)> {
     let history = match git {
         Some(git) => git.file_info(path)?,
         None => None,
@@ -321,14 +325,14 @@ fn infer_dates(path: &Path, git: Option<&GitIndex>) -> Result<(Date, Date)> {
     match history {
         Some(history) if history.dirty => Ok((
             history.created_at,
-            OffsetDateTime::from(fs::metadata(path)?.modified()?).date(),
+            timestamp(fs::metadata(path)?.modified()?),
         )),
         Some(history) => Ok((history.created_at, history.updated_at)),
         None => filesystem_dates(path),
     }
 }
 
-fn filesystem_dates(path: &Path) -> Result<(Date, Date)> {
+fn filesystem_dates(path: &Path) -> Result<(OffsetDateTime, OffsetDateTime)> {
     let metadata = fs::metadata(path)?;
     let updated = metadata.modified()?;
     let created = match metadata.created() {
@@ -336,8 +340,9 @@ fn filesystem_dates(path: &Path) -> Result<(Date, Date)> {
         Err(_) => updated,
     };
 
-    Ok((
-        OffsetDateTime::from(created).date(),
-        OffsetDateTime::from(updated).date(),
-    ))
+    Ok((timestamp(created), timestamp(updated)))
+}
+
+fn timestamp(value: SystemTime) -> OffsetDateTime {
+    OffsetDateTime::from(value).replace_nanosecond(0).unwrap()
 }

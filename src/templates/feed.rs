@@ -1,5 +1,4 @@
 use askama::Template;
-use time::Time;
 use time::format_description::well_known::Rfc2822;
 
 use super::{Site, chronological_posts};
@@ -26,6 +25,7 @@ struct FeedItem<'a> {
     href: String,
     description: Option<&'a str>,
     repost: Option<&'a Repost>,
+    repost_published: Option<String>,
     content: String,
     published: String,
 }
@@ -34,6 +34,8 @@ struct FeedItem<'a> {
 #[template(path = "repost-notice.html")]
 struct RepostNoticeTemplate<'a> {
     repost: &'a Repost,
+    repost_published: Option<String>,
+    repost_published_label: Option<String>,
 }
 
 #[derive(Template)]
@@ -54,17 +56,19 @@ impl Site<'_> {
             .into_iter()
             .take(FEED_POST_LIMIT)
             .map(|post| {
-                let published = post
-                    .article
-                    .published
-                    .with_time(Time::MIDNIGHT)
-                    .assume_utc()
-                    .format(&Rfc2822)
-                    .unwrap();
+                let published = post.article.published.format(&Rfc2822).unwrap();
 
                 let mut content = String::with_capacity(post.article.html.len());
                 if let Some(repost) = post.repost.as_ref() {
-                    content.push_str(&RepostNoticeTemplate { repost }.render().unwrap());
+                    content.push_str(
+                        &RepostNoticeTemplate {
+                            repost,
+                            repost_published: repost.published.map(crate::date_time::rfc3339),
+                            repost_published_label: repost.published.map(crate::date_time::date),
+                        }
+                        .render()
+                        .unwrap(),
+                    );
                 }
                 content.push_str(&post.article.html);
 
@@ -76,6 +80,11 @@ impl Site<'_> {
                         .as_ref()
                         .map(|description| description.text.as_str()),
                     repost: post.repost.as_ref(),
+                    repost_published: post
+                        .repost
+                        .as_ref()
+                        .and_then(|repost| repost.published)
+                        .map(crate::date_time::date),
                     content,
                     published,
                 }

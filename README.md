@@ -137,8 +137,8 @@ published: 2020-04-12
 # An older post
 ```
 
-The value must use `YYYY-MM-DD`. Setting it overrides only the publication
-date; the update date still follows the latest Git or filesystem change.
+The value accepts `YYYY-MM-DD` or RFC 3339. A date without a time means
+midnight UTC. The update time still follows the latest Git or filesystem change.
 
 ### Repost an article
 
@@ -151,7 +151,7 @@ repost:
   url: https://example.com/original-post
   title: The original article
   author: Alice
-  published: 2024-05-10
+  published: 2024-05-10T14:20:00+08:00 # you can omit `T..`
 ---
 
 # Reposted article

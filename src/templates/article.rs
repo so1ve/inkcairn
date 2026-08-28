@@ -11,10 +11,16 @@ use crate::render::{RenderedArticle, RenderedPage, RenderedPost};
 struct ArticleTemplate<'a, 'site> {
     page: PageContext<'a, 'site>,
     article: &'a RenderedArticle,
+    published: String,
+    published_label: String,
+    updated: String,
+    updated_label: String,
     categories: Vec<CategoryLink<'a>>,
     after_content: Option<&'site str>,
     pinned: bool,
     repost: Option<&'a Repost>,
+    repost_published: Option<String>,
+    repost_published_label: Option<String>,
     comments: Option<CommentSection<'a>>,
 }
 
@@ -80,10 +86,20 @@ impl<'site> Site<'site> {
         ArticleTemplate {
             page,
             article,
+            published: crate::date_time::rfc3339(article.published),
+            published_label: crate::date_time::display(article.published),
+            updated: crate::date_time::rfc3339(article.updated),
+            updated_label: crate::date_time::display(article.updated),
             categories,
             after_content: self.snippets.after_content,
             pinned,
             repost,
+            repost_published: repost
+                .and_then(|repost| repost.published)
+                .map(crate::date_time::rfc3339),
+            repost_published_label: repost
+                .and_then(|repost| repost.published)
+                .map(crate::date_time::date),
             comments,
         }
         .render()

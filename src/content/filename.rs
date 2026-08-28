@@ -5,8 +5,8 @@ use std::sync::LazyLock;
 
 use anyhow::{Context, Result, bail};
 use regex_lite::Regex;
-use time::Date;
 use time::macros::format_description;
+use time::{Date, OffsetDateTime};
 
 static PINNED_POST: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^0([0-9])-(.*)$").unwrap());
 static DATED_POST: LazyLock<Regex> =
@@ -34,7 +34,7 @@ pub struct PageName<'a> {
 struct Ordered<T> {
     value: T,
     source: PathBuf,
-    published: Date,
+    published: OffsetDateTime,
     position: PostPosition,
 }
 
@@ -80,15 +80,16 @@ impl<T> Posts<T> {
     pub fn push(
         &mut self,
         source: &Path,
-        published: Date,
+        published: OffsetDateTime,
         name: &PostName<'_>,
         value: T,
     ) -> Result<()> {
         if let Some(date) = name.date
-            && date != published
+            && date != published.date()
         {
             bail!(
-                "{} has date prefix `{date}` but publication date `{published}`",
+                "{} has date prefix `{date}` but publication date `{}`",
+                published.date(),
                 source.display()
             );
         }
@@ -106,12 +107,13 @@ impl<T> Posts<T> {
             PostPosition::Dated(Some(position)) => {
                 if let Some(existing) = self
                     .dated_positions
-                    .insert((published, position), source.to_owned())
+                    .insert((published.date(), position), source.to_owned())
                 {
                     bail!(
-                        "{} and {} use the same dated position `{published}-{position:02}-`",
+                        "{} and {} use the same dated position `{}-{position:02}-`",
                         existing.display(),
-                        source.display()
+                        source.display(),
+                        published.date()
                     );
                 }
             }
@@ -209,12 +211,14 @@ fn compare_posts<T>(left: &Ordered<T>, right: &Ordered<T>) -> Ordering {
         (PostPosition::Dated(_), PostPosition::Pinned(_)) => Ordering::Greater,
         (PostPosition::Dated(left_position), PostPosition::Dated(right_position)) => right
             .published
-            .cmp(&left.published)
+            .date()
+            .cmp(&left.published.date())
             .then_with(|| {
                 left_position
                     .unwrap_or(u8::MAX)
                     .cmp(&right_position.unwrap_or(u8::MAX))
             })
+            .then_with(|| right.published.cmp(&left.published))
             .then_with(|| left.source.cmp(&right.source)),
     }
 }

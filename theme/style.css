@@ -424,13 +424,20 @@ a:focus-visible {
 }
 
 .article-meta {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.article-meta-primary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.15rem 0.65rem;
-  margin-top: 0.35rem;
-  color: var(--muted);
-  font-weight: 600;
+}
+
+.article-updated {
+  margin-top: 0.15rem;
 }
 
 .repost-notice {

@@ -6,11 +6,13 @@
     {% include "category-breadcrumbs.html" %}
     <h1>{{ article.title.html|safe }}</h1>
     <div class="article-meta">
-      <time datetime="{{ article.published }}">{{ article.published }}</time>
-      {% if pinned %}<span class="pinned-badge">Pinned</span>{% endif %}
-      {% if repost.is_some() %}<span class="repost-badge">Repost</span>{% endif %}
-      {% if article.updated != article.published %}<span>Updated {{ article.updated }}</span>{% endif %}
-      {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
+      <div class="article-meta-primary">
+        <time datetime="{{ published }}">{{ published_label }}</time>
+        {% if pinned %}<span class="pinned-badge">Pinned</span>{% endif %}
+        {% if repost.is_some() %}<span class="repost-badge">Repost</span>{% endif %}
+        {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
+      </div>
+      {% if article.updated != article.published %}<div class="article-updated">Updated <time datetime="{{ updated }}">{{ updated_label }}</time></div>{% endif %}
     </div>
     {% if let Some(repost) = repost %}
       {% include "repost-notice.html" %}
