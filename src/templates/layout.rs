@@ -49,6 +49,7 @@ impl<'site> Site<'site> {
             site: self,
             title,
             canonical_url,
+            noindex: false,
             navigation,
         }
     }

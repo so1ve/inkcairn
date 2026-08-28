@@ -92,6 +92,35 @@ published: 2020-04-12
 The value must use `YYYY-MM-DD`. Setting it overrides only the publication
 date; the update date still follows the latest Git or filesystem change.
 
+### Repost an article
+
+Keep the reposted Markdown under `posts/` and identify its original source in
+frontmatter:
+
+```markdown
+---
+repost:
+  url: https://example.com/original-post
+  title: The original article
+  author: Alice
+  published: 2024-05-10
+---
+
+# Reposted article
+```
+
+`author` is required. `title`, `url`, and the original `published` date are
+optional. Omit the URL when the original article has no online location. The
+post's top-level `published` date remains the date it was published on this site
+and controls post ordering.
+
+Reposts display a visible source notice and remain available in post lists,
+search, and RSS. They use `noindex` and are omitted from the sitemap. When a
+source URL is present, it becomes the canonical URL. Without one, the local
+page remains canonical but is still excluded from search indexing.
+Source attribution does not replace any permission or license required to
+republish the article.
+
 The filename becomes the URL and can also control the listing order:
 
 ```text

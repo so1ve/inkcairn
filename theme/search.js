@@ -129,7 +129,11 @@ const resultItem = ({ entry, result }) => {
   title.append(link);
   item.append(title);
 
-  const metadata = [entry.published, entry.categories].filter(Boolean);
+  const metadata = [
+    entry.published,
+    entry.repost ? "Repost" : "",
+    entry.categories,
+  ].filter(Boolean);
   if (metadata.length) {
     const meta = document.createElement("p");
     meta.className = "search-result-meta";

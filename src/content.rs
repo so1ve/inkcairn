@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use time::{Date, OffsetDateTime};
 
 use crate::git::GitIndex;
@@ -30,6 +31,15 @@ pub struct PagePath {
     pub url: String,
 }
 
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Repost {
+    pub url: Option<String>,
+    pub title: Option<String>,
+    pub author: String,
+    pub published: Option<Date>,
+}
+
 pub struct Document {
     pub source: PathBuf,
     pub fallback_title: String,
@@ -43,6 +53,7 @@ pub struct Post {
     pub document: Document,
     pub path: PostPath,
     pub pinned: bool,
+    pub repost: Option<Repost>,
 }
 
 pub struct Page {
@@ -104,7 +115,14 @@ impl PagePath {
 
 #[derive(Default, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Frontmatter {
+struct PostFrontmatter {
+    published: Option<Date>,
+    repost: Option<Repost>,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PageFrontmatter {
     published: Option<Date>,
 }
 
@@ -137,7 +155,32 @@ fn discover_posts(
     for source in files {
         let name = filename::post_name(&source)
             .with_context(|| format!("invalid post filename {}", source.display()))?;
-        let document = parse_document(root, &source, parser, git, name.slug(), name.draft())?;
+        let (markdown, frontmatter) = read_source::<PostFrontmatter>(&source, parser)?;
+        let PostFrontmatter {
+            published,
+            mut repost,
+        } = frontmatter;
+        if let Some(repost) = repost.as_mut() {
+            repost.author = repost.author.trim().to_owned();
+            if repost.author.is_empty() {
+                bail!("`repost.author` in {} cannot be empty", source.display());
+            }
+            for value in [&mut repost.title, &mut repost.url] {
+                *value = value
+                    .take()
+                    .map(|value| value.trim().to_owned())
+                    .filter(|value| !value.is_empty());
+            }
+        }
+        let document = document(
+            root,
+            &source,
+            git,
+            name.slug(),
+            name.draft(),
+            published,
+            markdown,
+        )?;
         let path = PostPath::from_source(&directory, &source, name.slug());
 
         if !outputs.insert(path.output.clone()) {
@@ -157,6 +200,7 @@ fn discover_posts(
                 document,
                 path,
                 pinned: name.pinned(),
+                repost,
             },
         )?;
     }
@@ -184,7 +228,16 @@ fn discover_pages(
 
     for source in files {
         let name = filename::page_name(&source);
-        let document = parse_document(root, &source, parser, git, name.slug(), name.draft())?;
+        let (markdown, frontmatter) = read_source::<PageFrontmatter>(&source, parser)?;
+        let document = document(
+            root,
+            &source,
+            git,
+            name.slug(),
+            name.draft(),
+            frontmatter.published,
+            markdown,
+        )?;
         let path = PagePath::from_slug(name.slug());
 
         if !outputs.insert(path.output.clone()) {
@@ -202,21 +255,30 @@ fn discover_pages(
     Ok(pages)
 }
 
-fn parse_document(
+fn read_source<T>(source_path: &Path, parser: &Parser) -> Result<(String, T)>
+where
+    T: Default + DeserializeOwned,
+{
+    let markdown = fs::read_to_string(source_path)?;
+    let frontmatter = match parser.frontmatter(&markdown).as_deref() {
+        Some("") | None => T::default(),
+        Some(frontmatter) => yaml_serde::from_str(frontmatter)?,
+    };
+
+    Ok((markdown, frontmatter))
+}
+
+fn document(
     root: &Path,
     source_path: &Path,
-    parser: &Parser,
     git: Option<&GitIndex>,
     fallback_title: &str,
     draft: bool,
+    published: Option<Date>,
+    markdown: String,
 ) -> Result<Document> {
-    let markdown = fs::read_to_string(source_path)?;
-    let frontmatter = match parser.frontmatter(&markdown).as_deref() {
-        Some("") | None => Frontmatter::default(),
-        Some(frontmatter) => yaml_serde::from_str(frontmatter)?,
-    };
     let (inferred_published, updated) = infer_dates(source_path, git)?;
-    let published = frontmatter.published.unwrap_or(inferred_published);
+    let published = published.unwrap_or(inferred_published);
     let source = source_path.strip_prefix(root).unwrap().to_owned();
 
     Ok(Document {
@@ -351,6 +413,42 @@ mod tests {
             .to_string();
 
         assert!(error.contains("same pinned position `00-`"));
+    }
+
+    #[test]
+    fn repost_requires_an_author() {
+        let directory = tempdir().unwrap();
+        let posts = directory.path().join("posts");
+        fs::create_dir(&posts).unwrap();
+        fs::write(
+            posts.join("repost.md"),
+            "---\nrepost:\n  url: https://example.com/original\n  author: ''\n---\n\n# Repost\n",
+        )
+        .unwrap();
+        let error = discover(directory.path(), &Parser::new(), None, false)
+            .err()
+            .unwrap()
+            .to_string();
+
+        assert!(error.contains("`repost.author`"));
+    }
+
+    #[test]
+    fn pages_do_not_accept_repost() {
+        let directory = tempdir().unwrap();
+        let pages = directory.path().join("pages");
+        fs::create_dir(&pages).unwrap();
+        fs::write(
+            pages.join("about.md"),
+            "---\nrepost:\n  author: Alice\n---\n\n# About\n",
+        )
+        .unwrap();
+        let error = discover(directory.path(), &Parser::new(), None, false)
+            .err()
+            .unwrap()
+            .to_string();
+
+        assert!(error.contains("unknown field `repost`"));
     }
 
     fn write_post(root: &Path, name: &str, published: &str) {

@@ -3,7 +3,7 @@
     <li>
       <time datetime="{{ post.published }}">{{ post.published }}</time>
       <div class="post-entry">
-        <div class="post-title"><a href="{{ post.href }}">{{ post.title|safe }}</a>{% if post.pinned %}<span class="pinned-badge">Pinned</span>{% endif %}{% if post.draft %}<span class="draft-badge">Draft</span>{% endif %}</div>
+        <div class="post-title"><a href="{{ post.href }}">{{ post.title|safe }}</a>{% if post.pinned %}<span class="pinned-badge">Pinned</span>{% endif %}{% if post.repost %}<span class="repost-badge">Repost</span>{% endif %}{% if post.draft %}<span class="draft-badge">Draft</span>{% endif %}</div>
         {% let categories = post.categories %}
         {% include "category-breadcrumbs.html" %}
         {% if let Some(description) = post.description %}<div class="post-description markdown-body">{{ description|safe }}</div>{% endif %}

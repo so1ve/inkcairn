@@ -13,6 +13,7 @@ pub struct PostLink<'a> {
     pub categories: Vec<CategoryLink<'a>>,
     pub draft: bool,
     pub pinned: bool,
+    pub repost: bool,
 }
 
 struct ArchiveYear<'a> {
@@ -118,6 +119,7 @@ impl<'site> Site<'site> {
                 categories: self.category_links(&post.path.categories[category_depth..]),
                 draft: post.article.draft,
                 pinned: post.pinned,
+                repost: post.repost.is_some(),
             })
             .collect()
     }

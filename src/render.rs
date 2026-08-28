@@ -6,7 +6,7 @@ use comrak::options::Plugins;
 use comrak::{Arena, Node, format_html_with_plugins};
 use time::Date;
 
-use crate::content::{Document, Page, PagePath, Post, PostPath};
+use crate::content::{Document, Page, PagePath, Post, PostPath, Repost};
 use crate::parser::Parser;
 
 mod devices;
@@ -57,6 +57,7 @@ pub struct RenderedPost {
     pub path: PostPath,
     pub description: Option<RenderedDescription>,
     pub pinned: bool,
+    pub repost: Option<Repost>,
 }
 
 pub struct RenderedPage {
@@ -110,6 +111,7 @@ impl Renderer {
             path: source.path,
             description,
             pinned: source.pinned,
+            repost: source.repost,
         })
     }
 

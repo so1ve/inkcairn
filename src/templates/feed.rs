@@ -3,6 +3,7 @@ use time::format_description::well_known::Rfc2822;
 use time::{Date, Time};
 
 use super::{Site, chronological_posts};
+use crate::content::Repost;
 use crate::render::RenderedPost;
 
 #[derive(Template)]
@@ -22,6 +23,7 @@ struct FeedItem<'a> {
     title: &'a str,
     href: String,
     description: Option<&'a str>,
+    repost: Option<&'a Repost>,
     published: String,
 }
 
@@ -48,6 +50,7 @@ impl Site<'_> {
                     .description
                     .as_ref()
                     .map(|description| description.text.as_str()),
+                repost: post.repost.as_ref(),
                 published: rss_date(post.article.published),
             })
             .collect::<Vec<_>>();

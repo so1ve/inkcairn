@@ -152,7 +152,12 @@ fn generate(
             bytes: site.feed(&posts).into_bytes(),
             source: None,
         });
-        let paths = output.html_paths();
+        let mut paths = output.html_paths();
+        paths.retain(|path| {
+            !posts
+                .iter()
+                .any(|post| post.repost.is_some() && post.path.url == *path)
+        });
         output.push(OutputFile {
             path: PathBuf::from("sitemap.xml"),
             bytes: site.sitemap(&paths).into_bytes(),
@@ -235,5 +240,69 @@ fn render_categories(
             source: None,
         });
         render_categories(files, &category.children, posts, site);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use tempfile::tempdir;
+
+    use super::*;
+
+    #[test]
+    fn reposts_are_attributed_and_use_the_right_canonical_url() {
+        let directory = tempdir().unwrap();
+        fs::write(
+            directory.path().join("inkcairn.md"),
+            "---\nurl: https://blog.example\n---\n\n# Test blog\n",
+        )
+        .unwrap();
+        fs::create_dir(directory.path().join("posts")).unwrap();
+        fs::write(
+            directory.path().join("posts/repost.md"),
+            "---\npublished: 2026-08-28\nrepost:\n  url: 'https://source.example/original?a=1&b=2'\n  title: Original title\n  author: Alice\n  published: 2024-05-10\n---\n\n# Reposted article\n\nA short introduction.\n\n## Details\n\nReposted content.\n",
+        )
+        .unwrap();
+        fs::write(
+            directory.path().join("posts/offline-repost.md"),
+            "---\npublished: 2026-08-27\nrepost:\n  author: Bob\n  published: 1998-03-12\n---\n\n# Reposted print article\n",
+        )
+        .unwrap();
+
+        let output = build(directory.path(), true, false).unwrap();
+        let article = fs::read_to_string(output.join("posts/repost.html")).unwrap();
+        assert!(article.contains(
+            "<link rel=\"canonical\" href=\"https://source.example/original?a=1&amp;b=2\">"
+        ));
+        assert!(article.contains("<meta name=\"robots\" content=\"noindex\">"));
+        assert!(article.contains("<span class=\"repost-badge\">Repost</span>"));
+        assert!(article.contains("Original title</a> by Alice"));
+        assert!(article.contains("datetime=\"2024-05-10\">2024-05-10</time>"));
+
+        let offline_article = fs::read_to_string(output.join("posts/offline-repost.html")).unwrap();
+        assert!(offline_article.contains(
+            "<link rel=\"canonical\" href=\"https://blog.example/posts/offline-repost.html\">"
+        ));
+        assert!(offline_article.contains("<meta name=\"robots\" content=\"noindex\">"));
+        assert!(offline_article.contains("Reposted from the original article by Bob"));
+
+        let posts = fs::read_to_string(output.join("posts.html")).unwrap();
+        assert!(!posts.contains("<meta name=\"robots\" content=\"noindex\">"));
+        assert!(posts.contains("<span class=\"repost-badge\">Repost</span>"));
+
+        let feed = fs::read_to_string(output.join("rss.xml")).unwrap();
+        assert!(feed.contains(
+            "Reposted from Original title by Alice, published 2024-05-10: https://source.example/original?a=1&amp;b=2."
+        ));
+        assert!(feed.contains("Reposted from the original article by Bob, published 1998-03-12."));
+
+        let sitemap = fs::read_to_string(output.join("sitemap.xml")).unwrap();
+        assert!(!sitemap.contains("posts/repost.html"));
+        assert!(!sitemap.contains("posts/offline-repost.html"));
+
+        let search = fs::read_to_string(output.join("search-index.json")).unwrap();
+        assert!(search.contains("\"repost\":true"));
     }
 }

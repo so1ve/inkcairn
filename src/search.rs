@@ -13,6 +13,7 @@ struct SearchDocument<'a> {
     title: &'a str,
     breadcrumbs: String,
     published: Option<Date>,
+    repost: bool,
     categories: String,
     content: &'a str,
 }
@@ -54,6 +55,7 @@ pub fn documents(posts: &[RenderedPost], pages: &[RenderedPage]) -> OutputFile {
                 title,
                 breadcrumbs,
                 published: Some(post.article.published),
+                repost: post.repost.is_some(),
                 categories: categories.clone(),
                 content,
             });
@@ -82,6 +84,7 @@ pub fn documents(posts: &[RenderedPost], pages: &[RenderedPage]) -> OutputFile {
                 title,
                 breadcrumbs,
                 published: None,
+                repost: false,
                 categories: String::new(),
                 content: &section.text,
             });
