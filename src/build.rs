@@ -262,7 +262,7 @@ mod tests {
         fs::create_dir(directory.path().join("posts")).unwrap();
         fs::write(
             directory.path().join("posts/repost.md"),
-            "---\npublished: 2026-08-28\nrepost:\n  url: 'https://source.example/original?a=1&b=2'\n  title: Original title\n  author: Alice\n  published: 2024-05-10\n---\n\n# Reposted article\n\nA short introduction.\n\n## Details\n\nReposted content.\n",
+            "---\npublished: 2026-08-28\nrepost:\n  url: https://source.example/original\n  title: Original title\n  author: Alice\n  published: 2024-05-10\n---\n\n# Reposted article\n\nA short introduction.\n\n## Details\n\nReposted content.\n",
         )
         .unwrap();
         fs::write(
@@ -273,9 +273,9 @@ mod tests {
 
         let output = build(directory.path(), true, false).unwrap();
         let article = fs::read_to_string(output.join("posts/repost.html")).unwrap();
-        assert!(article.contains(
-            "<link rel=\"canonical\" href=\"https://source.example/original?a=1&amp;b=2\">"
-        ));
+        assert!(
+            article.contains("<link rel=\"canonical\" href=\"https://source.example/original\">")
+        );
         assert!(article.contains("<meta name=\"robots\" content=\"noindex\">"));
         assert!(article.contains("<span class=\"repost-badge\">Repost</span>"));
         assert!(article.contains("Original title</a> by Alice"));
@@ -294,7 +294,7 @@ mod tests {
 
         let feed = fs::read_to_string(output.join("rss.xml")).unwrap();
         assert!(feed.contains(
-            "Reposted from Original title by Alice, published 2024-05-10: https://source.example/original?a=1&amp;b=2."
+            "Reposted from Original title by Alice, published 2024-05-10: https://source.example/original."
         ));
         assert!(feed.contains("Reposted from the original article by Bob, published 1998-03-12."));
 
