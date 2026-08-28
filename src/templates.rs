@@ -37,6 +37,7 @@ pub struct Site<'a> {
 pub struct PageContext<'a, 'site> {
     site: &'a Site<'site>,
     title: String,
+    description: Option<&'a str>,
     canonical_url: Option<String>,
     noindex: bool,
     navigation: Vec<Navigation<'a>>,

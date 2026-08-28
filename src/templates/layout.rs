@@ -48,6 +48,7 @@ impl<'site> Site<'site> {
         PageContext {
             site: self,
             title,
+            description: self.metadata.description.as_deref(),
             canonical_url,
             noindex: false,
             navigation,

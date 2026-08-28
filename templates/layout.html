@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="{{ page.site.generator }}">
     {% if page.noindex %}<meta name="robots" content="noindex">{% endif %}
-    {% if let Some(description) = page.site.metadata.description %}<meta name="description" content="{{ description }}">{% endif %}
+    {% if let Some(description) = page.description %}<meta name="description" content="{{ description }}">{% endif %}
     <title>{{ page.title }}</title>
     {% if let Some(canonical_url) = page.canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
     {% if page.site.metadata.url.is_some() %}<link rel="alternate" type="application/rss+xml" title="{{ page.site.metadata.title }}" href="{{ page.site.root_url }}/rss.xml">{% endif %}

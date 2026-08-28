@@ -33,8 +33,13 @@ struct CommentSection<'a> {
 
 impl<'site> Site<'site> {
     pub fn post_article<'a>(&'a self, post: &'a RenderedPost) -> String {
+        let mut page = self.page(&post.path.url, &post.article.title.text);
+        if let Some(description) = post.description.as_ref() {
+            page.description = Some(&description.text);
+        }
+
         self.article(
-            &post.path.url,
+            page,
             &post.article,
             self.category_links(&post.path.categories),
             post.pinned,
@@ -45,7 +50,7 @@ impl<'site> Site<'site> {
 
     pub fn page_article<'a>(&'a self, page: &'a RenderedPage) -> String {
         self.article(
-            &page.path.url,
+            self.page(&page.path.url, &page.article.title.text),
             &page.article,
             Vec::new(),
             false,
@@ -68,14 +73,13 @@ impl<'site> Site<'site> {
 
     fn article<'a>(
         &'a self,
-        path: &str,
+        mut page: PageContext<'a, 'site>,
         article: &'a RenderedArticle,
         categories: Vec<CategoryLink<'a>>,
         pinned: bool,
         repost: Option<&'a Repost>,
         comments: Option<CommentSection<'a>>,
     ) -> String {
-        let mut page = self.page(path, &article.title.text);
         if let Some(repost) = repost {
             page.noindex = true;
             if let Some(url) = repost.url.as_deref() {
