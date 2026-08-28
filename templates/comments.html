@@ -1,0 +1,63 @@
+<link rel="stylesheet" href="{{ page.site.root_url }}/comments.css">
+<section class="comments" id="comments">
+  <header class="comments-header">
+    <h2>Comments{% if let Some(discussion) = comments.discussion %} <span>{{ discussion.count }}</span>{% endif %}</h2>
+    <button
+      class="comments-toggle"
+      type="button"
+      aria-pressed="false"
+      data-repo="{{ comments.giscus.repo }}"
+      data-repo-id="{{ comments.giscus.repo_id }}"
+      data-category="{{ comments.giscus.category }}"
+      data-category-id="{{ comments.giscus.category_id }}"
+      data-term="{{ comments.term }}"
+      data-lang="{{ page.site.metadata.language }}"
+    >Use Giscus</button>
+  </header>
+  <div class="comments-static">
+    {% if let Some(discussion) = comments.discussion %}
+      {% if discussion.comments.is_empty() %}
+        <p class="comments-empty">No comments yet.</p>
+      {% else %}
+        <ol class="comment-list">
+          {% for comment in discussion.comments %}
+            <li class="comment" id="comment-{{ comment.id }}">
+              {% if let Some(avatar) = comment.avatar %}<img class="comment-avatar" src="{{ avatar }}" alt="" width="32" height="32" loading="lazy">{% endif %}
+              <div class="comment-main">
+                <header class="comment-meta">
+                  {% if let Some(author_url) = comment.author_url %}<a class="comment-author" href="{{ author_url }}" rel="external nofollow">{{ comment.author }}</a>{% else %}<span class="comment-author">{{ comment.author }}</span>{% endif %}
+                  <a href="{{ comment.url }}" rel="external nofollow"><time datetime="{{ comment.created }}">{{ comment.created_date }}</time></a>
+                  {% if comment.edited %}<span>edited</span>{% endif %}
+                </header>
+                <div class="comment-body markdown-body">{{ comment.html|safe }}</div>
+              </div>
+              {% if !comment.replies.is_empty() %}
+                <ol class="comment-replies">
+                  {% for reply in comment.replies %}
+                    <li class="comment" id="comment-{{ reply.id }}">
+                      {% if let Some(avatar) = reply.avatar %}<img class="comment-avatar" src="{{ avatar }}" alt="" width="32" height="32" loading="lazy">{% endif %}
+                      <div class="comment-main">
+                        <header class="comment-meta">
+                          {% if let Some(author_url) = reply.author_url %}<a class="comment-author" href="{{ author_url }}" rel="external nofollow">{{ reply.author }}</a>{% else %}<span class="comment-author">{{ reply.author }}</span>{% endif %}
+                          <a href="{{ reply.url }}" rel="external nofollow"><time datetime="{{ reply.created }}">{{ reply.created_date }}</time></a>
+                          {% if reply.edited %}<span>edited</span>{% endif %}
+                        </header>
+                        <div class="comment-body markdown-body">{{ reply.html|safe }}</div>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ol>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+      {% endif %}
+    {% else if comments.snapshot_available %}
+      <p class="comments-empty">No comments yet.</p>
+    {% else %}
+      <p class="comments-empty">Open the discussion to load comments.</p>
+    {% endif %}
+  </div>
+  <div class="giscus"></div>
+</section>
+<script src="{{ page.site.root_url }}/comments.js"></script>

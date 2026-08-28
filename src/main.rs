@@ -5,6 +5,7 @@ use clap::{Parser, Subcommand};
 
 mod build;
 mod categories;
+mod comments;
 mod content;
 mod dev;
 mod git;

@@ -31,4 +31,7 @@
     </div>
   </div>
 </article>
+{% if let Some(comments) = comments %}
+  {% include "comments.html" %}
+{% endif %}
 {% endblock %}

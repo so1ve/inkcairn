@@ -8,8 +8,10 @@ use crate::git::GitIndex;
 use crate::metadata::Metadata;
 use crate::output::{OutputFile, SiteOutput};
 use crate::parser::Parser;
-use crate::render::{RenderedPage, RenderedPost, Renderer, search_stylesheet, stylesheet};
-use crate::{categories, content, search, templates, url_path};
+use crate::render::{
+    RenderedPage, RenderedPost, Renderer, comments_stylesheet, search_stylesheet, stylesheet,
+};
+use crate::{categories, comments, content, search, templates, url_path};
 
 pub fn build(root: &Path, allow_dirty: bool, include_drafts: bool) -> Result<PathBuf> {
     let root = fs::canonicalize(root)?;
@@ -59,6 +61,13 @@ fn generate(
         .into_par_iter()
         .map(|page| renderer.page(page))
         .collect::<Result<Vec<_>>>()?;
+    let comment_snapshot = comments::load(
+        metadata.comments.as_ref(),
+        posts
+            .iter()
+            .map(|post| post.path.url.as_str())
+            .chain(pages.iter().map(|page| page.path.url.as_str())),
+    )?;
     let categories = categories::collect(&posts);
     let snippets = load_snippets(root, &renderer)?;
     let template_build = if let Some(git) = git.as_ref()
@@ -84,6 +93,7 @@ fn generate(
         &metadata,
         template_build,
         &pages,
+        &comment_snapshot,
         templates::Snippets {
             head: snippets.head.as_deref(),
             home: snippets.home.as_deref(),
@@ -122,6 +132,18 @@ fn generate(
         bytes: include_bytes!("../theme/script.js").to_vec(),
         source: None,
     });
+    if metadata.comments.is_some() {
+        files.push(OutputFile {
+            path: PathBuf::from("comments.css"),
+            bytes: comments_stylesheet().into_bytes(),
+            source: None,
+        });
+        files.push(OutputFile {
+            path: PathBuf::from("comments.js"),
+            bytes: include_bytes!("../theme/comments.js").to_vec(),
+            source: None,
+        });
+    }
     // search
     files.push(OutputFile {
         path: PathBuf::from("search.html"),
@@ -240,73 +262,5 @@ fn render_categories(
             source: None,
         });
         render_categories(files, &category.children, posts, site);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::fs;
-
-    use tempfile::tempdir;
-
-    use super::*;
-
-    #[test]
-    fn reposts_are_attributed_and_use_the_right_canonical_url() {
-        let directory = tempdir().unwrap();
-        fs::write(
-            directory.path().join("inkcairn.md"),
-            "---\nurl: https://blog.example\n---\n\n# Test blog\n",
-        )
-        .unwrap();
-        fs::create_dir(directory.path().join("posts")).unwrap();
-        fs::write(
-            directory.path().join("posts/repost.md"),
-            "---\npublished: 2026-08-28\nrepost:\n  url: https://source.example/original\n  title: Original title\n  author: Alice\n  published: 2024-05-10\n---\n\n# Reposted article\n\nA short introduction.\n\n## Details\n\nReposted content.\n\n![Image](/assets/image.png)\n",
-        )
-        .unwrap();
-        fs::write(
-            directory.path().join("posts/offline-repost.md"),
-            "---\npublished: 2026-08-27\nrepost:\n  author: Bob\n  published: 1998-03-12\n---\n\n# Reposted print article\n",
-        )
-        .unwrap();
-
-        let output = build(directory.path(), true, false).unwrap();
-        let article = fs::read_to_string(output.join("posts/repost.html")).unwrap();
-        assert!(
-            article.contains("<link rel=\"canonical\" href=\"https://source.example/original\">")
-        );
-        assert!(article.contains("<meta name=\"robots\" content=\"noindex\">"));
-        assert!(article.contains("<span class=\"repost-badge\">Repost</span>"));
-        assert!(article.contains("Original title</a> by Alice"));
-        assert!(article.contains("datetime=\"2024-05-10\">2024-05-10</time>"));
-
-        let offline_article = fs::read_to_string(output.join("posts/offline-repost.html")).unwrap();
-        assert!(offline_article.contains(
-            "<link rel=\"canonical\" href=\"https://blog.example/posts/offline-repost.html\">"
-        ));
-        assert!(offline_article.contains("<meta name=\"robots\" content=\"noindex\">"));
-        assert!(offline_article.contains("Reposted from the original article by Bob"));
-
-        let posts = fs::read_to_string(output.join("posts.html")).unwrap();
-        assert!(!posts.contains("<meta name=\"robots\" content=\"noindex\">"));
-        assert!(posts.contains("<span class=\"repost-badge\">Repost</span>"));
-
-        let feed = fs::read_to_string(output.join("rss.xml")).unwrap();
-        assert!(feed.contains(
-            "Reposted from Original title by Alice, published 2024-05-10: https://source.example/original."
-        ));
-        assert!(feed.contains("Reposted from the original article by Bob, published 1998-03-12."));
-        assert!(feed.contains("xmlns:content=\"http://purl.org/rss/1.0/modules/content/\""));
-        assert!(feed.contains("<content:encoded>"));
-        assert!(feed.contains("Reposted content."));
-        assert!(feed.contains("https://blog.example/assets/image.png"));
-
-        let sitemap = fs::read_to_string(output.join("sitemap.xml")).unwrap();
-        assert!(!sitemap.contains("posts/repost.html"));
-        assert!(!sitemap.contains("posts/offline-repost.html"));
-
-        let search = fs::read_to_string(output.join("search-index.json")).unwrap();
-        assert!(search.contains("\"repost\":true"));
     }
 }

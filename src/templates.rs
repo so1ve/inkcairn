@@ -7,6 +7,7 @@ mod search;
 
 use std::cmp::Reverse;
 
+use crate::comments::CommentSnapshot;
 use crate::content::CategoryPath;
 use crate::metadata::Metadata;
 use crate::render::{RenderedPage, RenderedPost};
@@ -27,6 +28,7 @@ pub struct Site<'a> {
     metadata: &'a Metadata,
     build: Option<Build>,
     pages: &'a [RenderedPage],
+    comments: &'a CommentSnapshot,
     snippets: Snippets<'a>,
     root_url: String,
     generator: &'static str,
@@ -62,6 +64,7 @@ impl<'a> Site<'a> {
         metadata: &'a Metadata,
         build: Option<Build>,
         pages: &'a [RenderedPage],
+        comments: &'a CommentSnapshot,
         snippets: Snippets<'a>,
     ) -> Self {
         let root_url = url_path::base(metadata.url.as_deref());
@@ -70,6 +73,7 @@ impl<'a> Site<'a> {
             metadata,
             build,
             pages,
+            comments,
             snippets,
             root_url,
             generator: crate::GENERATOR,

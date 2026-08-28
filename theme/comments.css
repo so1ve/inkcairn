@@ -1,0 +1,145 @@
+.comments {
+  display: grid;
+  max-width: 42rem;
+  padding-top: 2rem;
+  margin-top: 4rem;
+  border-top: 1px solid var(--border);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.comments-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.comments-header h2 {
+  margin: 0;
+  color: var(--heading);
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.comments-header h2 span {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.comments-toggle {
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+  white-space: nowrap;
+}
+
+.comments-empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.comment-list,
+.comment-replies {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.comment-list {
+  display: grid;
+  gap: 2rem;
+}
+
+.comment {
+  display: grid;
+  min-width: 0;
+  gap: 0.75rem;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  scroll-margin-top: 2rem;
+}
+
+.comment-avatar {
+  width: 2rem;
+  height: 2rem;
+  background: var(--surface);
+  border-radius: 50%;
+}
+
+.comment-main {
+  min-width: 0;
+  grid-column: 2;
+}
+
+.comment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.6rem;
+  margin-bottom: 0.4rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.comment-meta a {
+  text-decoration: none;
+}
+
+.comment-meta .comment-author {
+  color: var(--heading);
+  font-weight: 700;
+}
+
+.comment-body {
+  font-size: 0.8rem;
+}
+
+.comment-body p,
+.comment-body ul,
+.comment-body ol,
+.comment-body blockquote,
+.comment-body pre,
+.comment-body table,
+.comment-body details {
+  margin-block: 0.8em;
+}
+
+.comment-replies {
+  display: grid;
+  padding-left: 1rem;
+  margin-top: 1.25rem;
+  gap: 1.25rem;
+  border-left: 1px solid var(--border);
+  grid-column: 2;
+}
+
+.comments-static,
+.giscus {
+  min-width: 0;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.giscus {
+  visibility: hidden;
+}
+
+.giscus:not(:empty) {
+  margin-top: 0.5rem;
+}
+
+.comments-live .comments-static {
+  visibility: hidden;
+}
+
+.comments-live .giscus {
+  visibility: visible;
+}
+

@@ -7,10 +7,12 @@ document.getElementById("theme-toggle")?.addEventListener("click", () => {
   } catch {}
 });
 
-document.addEventListener("click", async event => {
+document.addEventListener("click", event => {
   const button = event.target.closest(".copy-code");
-  if (!button) return;
+  if (button) copyCode(button);
+});
 
+async function copyCode(button) {
   const code = button.parentElement.querySelectorAll(".code-text:not(.diff-del)");
   const text = [...code].map(line => line.textContent).join("\n");
 
@@ -26,4 +28,4 @@ document.addEventListener("click", async event => {
     delete button.dataset.copied;
     button.ariaLabel = "Copy code";
   }, 1200);
-});
+}

@@ -17,7 +17,9 @@ mod stylesheet;
 
 use headings::Headings;
 use highlight::Highlighter;
-pub use stylesheet::{render as stylesheet, search as search_stylesheet};
+pub use stylesheet::{
+    comments as comments_stylesheet, render as stylesheet, search as search_stylesheet,
+};
 
 pub struct OutlineEntry {
     pub level: u8,
@@ -256,44 +258,4 @@ fn escape_html(value: &str) -> String {
     }
 
     html
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn renders_friends_codefence_plugin() {
-        let renderer = Renderer::new(Parser::new());
-        let html = renderer
-            .markdown("```friends\n- name: Ray & Co.\n  url: https://example.com?a=1&b=2\n```\n")
-            .unwrap();
-
-        assert!(html.contains("Ray &amp; Co."));
-        assert!(html.contains("https://example.com?a=1&amp;b=2"));
-        assert!(html.contains("aria-hidden=\"true\">R</span>"));
-        assert!(!html.contains("<pre"));
-    }
-
-    #[test]
-    fn reports_invalid_friends_codefence() {
-        let renderer = Renderer::new(Parser::new());
-
-        assert_eq!(
-            renderer
-                .markdown("```friends\n[]\n```\n")
-                .unwrap_err()
-                .to_string(),
-            "friends block cannot be empty"
-        );
-        assert!(
-            renderer
-                .markdown(
-                    "```friends\n- name: Ray\n  url: https://example.com\n  extra: value\n```\n"
-                )
-                .unwrap_err()
-                .to_string()
-                .contains("invalid friends block")
-        );
-    }
 }

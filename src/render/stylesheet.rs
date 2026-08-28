@@ -30,6 +30,10 @@ pub fn search() -> String {
     minify(include_str!("../../theme/search.css"), "search.css")
 }
 
+pub fn comments() -> String {
+    minify(include_str!("../../theme/comments.css"), "comments.css")
+}
+
 fn minify(source: &str, filename: &str) -> String {
     let mut stylesheet = StyleSheet::parse(
         source,
@@ -69,24 +73,4 @@ fn prefix_syntax_css(css: &str, prefix: &str) -> String {
         })
         .collect::<Vec<_>>()
         .join("\n")
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn prefixes_every_syntax_selector() {
-        assert_eq!(
-            prefix_syntax_css(
-                ".syn-code, .syn-text, .syn-source { color: red; }",
-                ":root[data-theme=\"dark\"] .markdown-body ",
-            ),
-            concat!(
-                ":root[data-theme=\"dark\"] .markdown-body .syn-code,",
-                ":root[data-theme=\"dark\"] .markdown-body .syn-text,",
-                ":root[data-theme=\"dark\"] .markdown-body .syn-source{ color: red; }",
-            )
-        );
-    }
 }

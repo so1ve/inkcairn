@@ -1,7 +1,9 @@
 use askama::Template;
 
 use super::{CategoryLink, PageContext, Site};
+use crate::comments::Discussion;
 use crate::content::Repost;
+use crate::metadata::Giscus;
 use crate::render::{RenderedArticle, RenderedPage, RenderedPost};
 
 #[derive(Template)]
@@ -13,6 +15,14 @@ struct ArticleTemplate<'a, 'site> {
     after_content: Option<&'site str>,
     pinned: bool,
     repost: Option<&'a Repost>,
+    comments: Option<CommentSection<'a>>,
+}
+
+struct CommentSection<'a> {
+    giscus: &'a Giscus,
+    term: &'a str,
+    snapshot_available: bool,
+    discussion: Option<&'a Discussion>,
 }
 
 impl<'site> Site<'site> {
@@ -23,11 +33,31 @@ impl<'site> Site<'site> {
             self.category_links(&post.path.categories),
             post.pinned,
             post.repost.as_ref(),
+            self.comment_section(&post.path.url),
         )
     }
 
     pub fn page_article<'a>(&'a self, page: &'a RenderedPage) -> String {
-        self.article(&page.path.url, &page.article, Vec::new(), false, None)
+        self.article(
+            &page.path.url,
+            &page.article,
+            Vec::new(),
+            false,
+            None,
+            self.comment_section(&page.path.url),
+        )
+    }
+
+    fn comment_section<'a>(&'a self, term: &'a str) -> Option<CommentSection<'a>> {
+        self.metadata
+            .comments
+            .as_ref()
+            .map(|giscus| CommentSection {
+                giscus,
+                term,
+                snapshot_available: self.comments.available(),
+                discussion: self.comments.discussion(term),
+            })
     }
 
     fn article<'a>(
@@ -37,6 +67,7 @@ impl<'site> Site<'site> {
         categories: Vec<CategoryLink<'a>>,
         pinned: bool,
         repost: Option<&'a Repost>,
+        comments: Option<CommentSection<'a>>,
     ) -> String {
         let mut page = self.page(path, &article.title.text);
         if let Some(repost) = repost {
@@ -53,6 +84,7 @@ impl<'site> Site<'site> {
             after_content: self.snippets.after_content,
             pinned,
             repost,
+            comments,
         }
         .render()
         .unwrap()

@@ -32,6 +32,7 @@ tokio = { version = "1", features = ["macros", "net", "rt-multi-thread", "signal
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.7", features = ["fs"] }
 two-face = { version = "0.5.2", default-features = false, features = ["syntect-fancy"] }
+ureq = { version = "3", default-features = false, features = ["json", "rustls"] }
 yaml_serde = "0.10"
 
 [lints.clippy]

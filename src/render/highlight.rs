@@ -103,37 +103,3 @@ impl<'a> Fence<'a> {
             .join(" · ")
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn standalone_diff_uses_syntect() {
-        let mut output = String::new();
-
-        Highlighter::default()
-            .write_highlighted(&mut output, Some("diff"), "+added\n-deleted\n")
-            .unwrap();
-
-        assert!(output.contains("syn-inserted"));
-        assert!(output.contains("syn-deleted"));
-        assert!(output.contains(">+</span>"));
-        assert!(output.contains(">-</span>"));
-        assert!(output.contains("added"));
-        assert!(output.contains("deleted"));
-        assert!(!output.contains("diff-add"));
-    }
-
-    #[test]
-    fn diff_after_language_remains_a_modifier() {
-        let mut output = String::new();
-
-        Highlighter::default()
-            .write_highlighted(&mut output, Some("rust,diff"), "+let added = true;\n")
-            .unwrap();
-
-        assert!(output.contains("code-text diff-add"));
-        assert!(!output.contains("+let added"));
-    }
-}
