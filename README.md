@@ -8,6 +8,10 @@ feeds, and live preview, then writes plain static files that can be hosted
 anywhere. Publication and update dates come from file history by default, so
 authors normally write no date metadata.
 
+## Demo
+
+Checkout <https://inkcairn.so1ve.dev>.
+
 ## Quick start
 
 Create and preview a site:
