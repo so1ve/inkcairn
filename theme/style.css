@@ -818,6 +818,62 @@ a:focus-visible {
   margin-block: 1.75rem;
 }
 
+.markdown-body p img {
+  cursor: zoom-in;
+}
+
+.image-lightbox {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  padding: 2rem;
+  background: transparent;
+  border: 0;
+}
+
+.image-lightbox[open] {
+  display: grid;
+  place-items: center;
+}
+
+.image-lightbox::backdrop {
+  background: oklch(10% 0 0 / 0.85);
+}
+
+.image-lightbox img {
+  max-width: 100%;
+  max-height: calc(100dvh - 4rem);
+  cursor: zoom-out;
+  object-fit: contain;
+}
+
+.image-zoom-transition {
+  view-transition-name: image-zoom;
+}
+
+::view-transition-group(root) {
+  animation-duration: 160ms;
+}
+
+::view-transition-group(image-zoom) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.2, 1.25, 0.35, 1);
+}
+
+::view-transition-old(image-zoom),
+::view-transition-new(image-zoom) {
+  animation-duration: 180ms;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-group(image-zoom) {
+    animation-duration: 0s;
+  }
+}
+
 .markdown-body hr {
   height: 1px;
   margin-block: 2.5rem;
