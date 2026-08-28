@@ -1,6 +1,6 @@
 [package]
 name = "inkcairn"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 description = "Simple blog generator using your Git index"
 repository = "https://github.com/so1ve/inkcairn"
