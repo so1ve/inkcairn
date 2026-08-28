@@ -55,7 +55,7 @@
     {% else if comments.snapshot_available %}
       <p class="comments-empty">No comments yet.</p>
     {% else %}
-      <p class="comments-empty">Open the discussion to load comments.</p>
+      <p class="comments-empty"><code>GITHUB_TOKEN</code> was not set when the site was built.</p>
     {% endif %}
   </div>
   <div class="giscus"></div>
