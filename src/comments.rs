@@ -7,6 +7,12 @@ use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
 use crate::metadata::Giscus;
+use crate::output::register_files;
+
+register_files! {
+    "comments.css",
+    "comments.js",
+}
 
 #[derive(Default)]
 pub struct CommentSnapshot {

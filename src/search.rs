@@ -3,8 +3,14 @@ use std::path::PathBuf;
 use serde::Serialize;
 use time::Date;
 
-use crate::output::OutputFile;
+use crate::output::{OutputFile, register_files};
 use crate::render::{RenderedPage, RenderedPost};
+
+register_files! {
+    "search.js",
+    "minisearch.js",
+    "search.css",
+}
 
 #[derive(Serialize)]
 struct SearchDocument<'a> {

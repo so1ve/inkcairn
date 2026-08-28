@@ -16,6 +16,7 @@ mod parser;
 mod render;
 mod search;
 mod templates;
+mod theme;
 mod url_path;
 
 const GENERATOR: &str = concat!("Inkcairn ", env!("CARGO_PKG_VERSION"));

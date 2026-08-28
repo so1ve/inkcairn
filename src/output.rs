@@ -3,15 +3,48 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Result, bail};
+use lightningcss::printer::PrinterOptions;
+use lightningcss::stylesheet::{MinifyOptions, ParserOptions, StyleSheet};
 use serde::Serialize;
 
 use crate::git::GitIndex;
 use crate::url_path;
 
+macro_rules! register_files {
+    ($($path:literal),+ $(,)?) => {
+        pub fn files() -> impl IntoIterator<Item = $crate::output::OutputFile> {
+            [$(
+                $crate::output::OutputFile::embedded(
+                    $path,
+                    include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/theme/", $path)),
+                ),
+            )+]
+        }
+    };
+}
+
+pub(crate) use register_files;
+
 pub struct OutputFile {
     pub path: PathBuf,
     pub bytes: Vec<u8>,
     pub source: Option<PathBuf>,
+}
+
+impl OutputFile {
+    pub fn embedded(path: &str, source: &[u8]) -> Self {
+        let bytes = if path.ends_with(".css") {
+            minify_stylesheet(std::str::from_utf8(source).unwrap(), path)
+        } else {
+            source.to_vec()
+        };
+
+        Self {
+            path: PathBuf::from(path),
+            bytes,
+            source: None,
+        }
+    }
 }
 
 pub struct SiteOutput<'a> {
@@ -198,4 +231,24 @@ fn collect_files(directory: &Path, output: &mut Vec<PathBuf>) -> Result<()> {
 
 fn path_to_url(path: &Path) -> String {
     path.to_str().unwrap().replace('\\', "/")
+}
+
+fn minify_stylesheet(source: &str, filename: &str) -> Vec<u8> {
+    let mut stylesheet = StyleSheet::parse(
+        source,
+        ParserOptions {
+            filename: filename.to_owned(),
+            ..ParserOptions::default()
+        },
+    )
+    .unwrap();
+    stylesheet.minify(MinifyOptions::default()).unwrap();
+    let css = stylesheet
+        .to_css(PrinterOptions {
+            minify: true,
+            ..PrinterOptions::default()
+        })
+        .unwrap();
+
+    css.code.into_bytes()
 }
