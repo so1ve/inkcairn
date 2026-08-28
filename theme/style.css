@@ -639,7 +639,7 @@ a:focus-visible {
   --alert-color: var(--diff-del);
 }
 
-.markdown-body code {
+.markdown-body :not(pre) > code {
   padding: 0.12em 0.3em;
   color: var(--heading);
   background: var(--surface);
@@ -650,12 +650,13 @@ a:focus-visible {
 
 .markdown-body pre {
   --code-header-height: 1.3rem;
+  --code-content-padding: 0.3rem;
   --code-control-inset: 0.15rem;
   --code-control-size: 1rem;
 
   position: relative;
   max-width: 100%;
-  padding: 0 0 0.3rem;
+  padding: 0 0 var(--code-content-padding);
   overflow: hidden;
   color: var(--text);
   background: var(--surface);
@@ -667,9 +668,8 @@ a:focus-visible {
 
 .markdown-body pre::before {
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   inset: 0 0 auto;
-  display: block;
   height: var(--code-header-height);
   padding-right: calc(
     var(--code-control-size) + var(--code-control-inset) +
@@ -693,7 +693,7 @@ a:focus-visible {
 
 .copy-code {
   position: absolute;
-  z-index: 3;
+  z-index: 2;
   top: var(--code-control-inset);
   right: var(--code-control-inset);
   display: grid;
@@ -711,7 +711,6 @@ a:focus-visible {
 
 .copy-code:hover,
 .copy-code:focus-visible {
-  color: var(--heading);
   background: color-mix(in oklch, var(--border) 45%, var(--background));
 }
 
@@ -740,54 +739,49 @@ a:focus-visible {
 
 .markdown-body pre code {
   display: grid;
-  grid-template-columns: max-content minmax(max-content, 1fr);
-  width: 100%;
-  min-width: 0;
-  padding: var(--code-header-height) 0 0;
+  grid-template-columns: minmax(max-content, 1fr);
+  padding: calc(var(--code-header-height) + var(--code-content-padding)) 0 0;
   overflow-x: auto;
   overflow-y: hidden;
   font-size: 0.82rem;
 }
 
-.code-line-number {
-  position: sticky;
-  z-index: 1;
-  left: 0;
-  padding-right: 0.4rem;
-  padding-left: 0.4rem;
-  color: color-mix(in oklch, var(--muted) 60%, transparent);
-  background: var(--surface);
-  border-right: 1px solid color-mix(in oklch, var(--border) 55%, transparent);
-  font-size: 0.7rem;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.35rem;
-  text-align: right;
-  user-select: none;
-}
-
-.code-line-number.diff-add {
-  color: var(--diff-add);
-}
-
-.code-line-number.diff-del {
-  color: var(--diff-del);
-}
-
-.code-text {
-  padding-right: 1rem;
-  padding-left: 0.45rem;
+.code-line {
+  min-height: 1.35rem;
+  padding: 0 1rem 0 0.45rem;
   white-space: pre;
 }
 
-.code-text.diff-add {
-  background: color-mix(in oklch, var(--diff-add) 12%, transparent);
+.code-line.diff {
+  position: relative;
+  padding-left: 1rem;
+  background: color-mix(
+    in oklch,
+    var(--diff-color, transparent) 12%,
+    transparent
+  );
 }
 
-.code-text.diff-del {
-  background: color-mix(in oklch, var(--diff-del) 12%, transparent);
+.code-line.diff::before {
+  position: absolute;
+  left: 0;
+  width: 0.75rem;
+  color: var(--diff-color, var(--muted));
+  content: var(--diff-sign, "");
+  text-align: center;
 }
 
-.code-text.diff-header {
+.code-line.diff-add {
+  --diff-color: var(--diff-add);
+  --diff-sign: "+";
+}
+
+.code-line.diff-del {
+  --diff-color: var(--diff-del);
+  --diff-sign: "-";
+}
+
+.code-line.diff-header {
   color: var(--muted);
 }
 

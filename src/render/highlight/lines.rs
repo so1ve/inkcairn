@@ -21,11 +21,9 @@ pub fn write(
         let class = diff_class(source_line, diff);
         let line = line.trim_end_matches(['\r', '\n']);
 
-        write!(
-            output,
-            "<span class=\"code-line-number{class}\" aria-hidden=\"true\">{}</span><span class=\"code-text{class}\">",
-            index + 1
-        )?;
+        output.write_str("<span class=\"code-line")?;
+        output.write_str(class)?;
+        output.write_str("\">")?;
         let mut html = String::new();
         match highlighted
             .as_ref()
@@ -57,12 +55,12 @@ fn diff_class(line: &str, diff: bool) -> &'static str {
     if !diff {
         ""
     } else if line.starts_with('+') {
-        " diff-add"
+        " diff diff-add"
     } else if line.starts_with('-') {
-        " diff-del"
+        " diff diff-del"
     } else if line.starts_with("@@") {
-        " diff-header"
+        " diff diff-header"
     } else {
-        ""
+        " diff"
     }
 }

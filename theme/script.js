@@ -13,7 +13,7 @@ document.addEventListener("click", event => {
 });
 
 async function copyCode(button, releaseFocus) {
-  const code = button.parentElement.querySelectorAll(".code-text:not(.diff-del)");
+  const code = button.parentElement.querySelectorAll(".code-line:not(.diff-del)");
   const text = [...code].map(line => line.textContent).join("\n");
 
   try {
