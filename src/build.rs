@@ -262,7 +262,7 @@ mod tests {
         fs::create_dir(directory.path().join("posts")).unwrap();
         fs::write(
             directory.path().join("posts/repost.md"),
-            "---\npublished: 2026-08-28\nrepost:\n  url: https://source.example/original\n  title: Original title\n  author: Alice\n  published: 2024-05-10\n---\n\n# Reposted article\n\nA short introduction.\n\n## Details\n\nReposted content.\n",
+            "---\npublished: 2026-08-28\nrepost:\n  url: https://source.example/original\n  title: Original title\n  author: Alice\n  published: 2024-05-10\n---\n\n# Reposted article\n\nA short introduction.\n\n## Details\n\nReposted content.\n\n![Image](/assets/image.png)\n",
         )
         .unwrap();
         fs::write(
@@ -297,6 +297,10 @@ mod tests {
             "Reposted from Original title by Alice, published 2024-05-10: https://source.example/original."
         ));
         assert!(feed.contains("Reposted from the original article by Bob, published 1998-03-12."));
+        assert!(feed.contains("xmlns:content=\"http://purl.org/rss/1.0/modules/content/\""));
+        assert!(feed.contains("<content:encoded>"));
+        assert!(feed.contains("Reposted content."));
+        assert!(feed.contains("https://blog.example/assets/image.png"));
 
         let sitemap = fs::read_to_string(output.join("sitemap.xml")).unwrap();
         assert!(!sitemap.contains("posts/repost.html"));

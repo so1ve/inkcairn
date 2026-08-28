@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>{{ site.title }}</title>
     <link>{{ site.href }}</link>
@@ -11,6 +11,7 @@
         <guid>{{ post.href }}</guid>
         <pubDate>{{ post.published }}</pubDate>
         {% if post.repost.is_some() || post.description.is_some() %}<description>{% if let Some(repost) = post.repost %}{% let original_title = repost.title.as_deref().unwrap_or("the original article") %}Reposted from {{ original_title }} by {{ repost.author }}{% if let Some(published) = repost.published %}, published {{ published }}{% endif %}{% if let Some(url) = repost.url.as_deref() %}: {{ url }}{% endif %}. {% endif %}{% if let Some(description) = post.description %}{{ description }}{% endif %}</description>{% endif %}
+        <content:encoded>{{ post.content }}</content:encoded>
       </item>
     {% endfor %}
   </channel>

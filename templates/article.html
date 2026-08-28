@@ -13,10 +13,7 @@
       {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
     </div>
     {% if let Some(repost) = repost %}
-      {% let original_title = repost.title.as_deref().unwrap_or("the original article") %}
-      <aside class="repost-notice" aria-label="Original source">
-        Reposted from {% if let Some(url) = repost.url.as_deref() %}<a href="{{ url }}" rel="external">{{ original_title }}</a>{% else %}{{ original_title }}{% endif %} by {{ repost.author }}{% if let Some(published) = repost.published %}, published <time datetime="{{ published }}">{{ published }}</time>{% endif %}.
-      </aside>
+      {% include "repost-notice.html" %}
     {% endif %}
   </header>
   <div class="article-content">

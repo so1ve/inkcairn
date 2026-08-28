@@ -1,10 +1,12 @@
 use askama::Template;
+use time::Time;
 use time::format_description::well_known::Rfc2822;
-use time::{Date, Time};
 
 use super::{Site, chronological_posts};
 use crate::content::Repost;
 use crate::render::RenderedPost;
+
+const FEED_POST_LIMIT: usize = 20;
 
 #[derive(Template)]
 #[template(path = "rss.xml")]
@@ -24,7 +26,14 @@ struct FeedItem<'a> {
     href: String,
     description: Option<&'a str>,
     repost: Option<&'a Repost>,
+    content: String,
     published: String,
+}
+
+#[derive(Template)]
+#[template(path = "repost-notice.html")]
+struct RepostNoticeTemplate<'a> {
+    repost: &'a Repost,
 }
 
 #[derive(Template)]
@@ -43,15 +52,33 @@ impl Site<'_> {
         let href = format!("{site_url}/");
         let posts = chronological_posts(posts)
             .into_iter()
-            .map(|post| FeedItem {
-                title: &post.article.title.text,
-                href: format!("{site_url}/{}", post.path.url),
-                description: post
-                    .description
-                    .as_ref()
-                    .map(|description| description.text.as_str()),
-                repost: post.repost.as_ref(),
-                published: rss_date(post.article.published),
+            .take(FEED_POST_LIMIT)
+            .map(|post| {
+                let published = post
+                    .article
+                    .published
+                    .with_time(Time::MIDNIGHT)
+                    .assume_utc()
+                    .format(&Rfc2822)
+                    .unwrap();
+
+                let mut content = String::with_capacity(post.article.html.len());
+                if let Some(repost) = post.repost.as_ref() {
+                    content.push_str(&RepostNoticeTemplate { repost }.render().unwrap());
+                }
+                content.push_str(&post.article.html);
+
+                FeedItem {
+                    title: &post.article.title.text,
+                    href: format!("{site_url}/{}", post.path.url),
+                    description: post
+                        .description
+                        .as_ref()
+                        .map(|description| description.text.as_str()),
+                    repost: post.repost.as_ref(),
+                    content,
+                    published,
+                }
             })
             .collect::<Vec<_>>();
 
@@ -76,12 +103,4 @@ impl Site<'_> {
 
         SitemapTemplate { urls: &urls }.render().unwrap()
     }
-}
-
-fn rss_date(value: Date) -> String {
-    value
-        .with_time(Time::MIDNIGHT)
-        .assume_utc()
-        .format(&Rfc2822)
-        .unwrap()
 }
