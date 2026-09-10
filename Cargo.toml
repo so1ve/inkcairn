@@ -25,6 +25,7 @@ rayon = "1"
 regex-lite = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+sha1_smol = "1"
 syntaxmate = { version = "0.1.2", default-features = false, features = ["bundled-grammars", "bundled-themes"] }
 time = { version = "0.3", features = ["formatting", "macros", "parsing", "serde-human-readable"] }
 tempfile = "3"

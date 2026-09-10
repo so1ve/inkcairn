@@ -1,10 +1,11 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::env;
 
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
 use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
+use sha1_smol::Sha1;
 
 use crate::metadata::Giscus;
 use crate::output::register_files;
@@ -52,7 +53,10 @@ pub fn load<'a>(
         return Ok(CommentSnapshot::default());
     }
 
-    let terms = terms.into_iter().collect::<HashSet<_>>();
+    let terms = terms
+        .into_iter()
+        .map(|term| (term, Sha1::from(term).digest().to_string()))
+        .collect::<HashMap<_, _>>();
     let (owner, name) = config.repo.split_once('/').unwrap();
     let github = GitHub { token, owner, name };
     let discussions = github.discussions(&config.category_id, &terms)?;
@@ -82,7 +86,7 @@ impl GitHub<'_> {
     fn discussions(
         &self,
         category_id: &str,
-        terms: &HashSet<&str>,
+        terms: &HashMap<&str, String>,
     ) -> Result<HashMap<String, Discussion>> {
         let mut after = None;
         let mut discussions = HashMap::new();
@@ -98,16 +102,18 @@ impl GitHub<'_> {
                 }),
             )?;
             let page = repository.discussions;
-            for discussion in page
-                .nodes
-                .into_iter()
-                .flatten()
-                .filter(|discussion| terms.contains(discussion.title.as_str()))
-            {
-                let title = discussion.title.clone();
-                let snapshot = self.discussion(discussion.number)?;
-                if discussions.insert(title.clone(), snapshot).is_some() {
-                    bail!("giscus category contains more than one discussion titled `{title}`");
+            for discussion in page.nodes.into_iter().flatten() {
+                for (&term, hash) in terms {
+                    if !discussion.body.contains(hash) {
+                        continue;
+                    }
+
+                    let snapshot = self.discussion(discussion.number)?;
+                    if discussions.insert(term.to_owned(), snapshot).is_some() {
+                        bail!(
+                            "giscus category contains more than one discussion matching `{term}`"
+                        );
+                    }
                 }
             }
             if !page.page_info.has_next_page {
@@ -319,7 +325,7 @@ struct PageInfo {
 #[derive(Deserialize)]
 struct ApiDiscussion {
     number: u64,
-    title: String,
+    body: String,
 }
 
 #[derive(Deserialize)]
@@ -350,7 +356,7 @@ query($owner: String!, $name: String!, $categoryId: ID!, $after: String) {
   repository(owner: $owner, name: $name) {
     discussions(first: 100, after: $after, categoryId: $categoryId) {
       pageInfo { hasNextPage endCursor }
-      nodes { number title }
+      nodes { number body }
     }
   }
 }
