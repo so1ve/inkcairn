@@ -11,6 +11,7 @@ use crate::render::{RenderedArticle, RenderedPage, RenderedPost};
 struct ArticleTemplate<'a, 'site> {
     page: PageContext<'a, 'site>,
     article: &'a RenderedArticle,
+    description: Option<&'a str>,
     published: String,
     published_label: String,
     updated: String,
@@ -38,14 +39,19 @@ impl<'site> Site<'site> {
             page.description = Some(&description.text);
         }
 
-        self.article(
+        let mut template = self.article(
             page,
             &post.article,
             self.category_links(&post.path.categories),
             post.pinned,
             post.repost.as_ref(),
             self.comment_section(&post.path.url),
-        )
+        );
+        template.description = post
+            .description
+            .as_ref()
+            .map(|description| description.html.as_str());
+        template.render().unwrap()
     }
 
     pub fn page_article<'a>(&'a self, page: &'a RenderedPage) -> String {
@@ -57,6 +63,8 @@ impl<'site> Site<'site> {
             None,
             self.comment_section(&page.path.url),
         )
+        .render()
+        .unwrap()
     }
 
     fn comment_section<'a>(&'a self, term: &'a str) -> Option<CommentSection<'a>> {
@@ -79,7 +87,7 @@ impl<'site> Site<'site> {
         pinned: bool,
         repost: Option<&'a Repost>,
         comments: Option<CommentSection<'a>>,
-    ) -> String {
+    ) -> ArticleTemplate<'a, 'site> {
         if let Some(repost) = repost {
             page.noindex = true;
             if let Some(url) = repost.url.as_deref() {
@@ -90,6 +98,7 @@ impl<'site> Site<'site> {
         ArticleTemplate {
             page,
             article,
+            description: None,
             published: crate::date_time::rfc3339(article.published),
             published_label: crate::date_time::display(article.published),
             updated: crate::date_time::rfc3339(article.updated),
@@ -106,7 +115,5 @@ impl<'site> Site<'site> {
                 .map(crate::date_time::date),
             comments,
         }
-        .render()
-        .unwrap()
     }
 }

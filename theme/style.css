@@ -117,7 +117,8 @@ a:hover {
 }
 
 button:focus-visible,
-a:focus-visible {
+a:focus-visible,
+summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
@@ -438,6 +439,25 @@ a:focus-visible {
 
 .article-updated {
   margin-top: 0.15rem;
+}
+
+.article-description {
+  margin-top: 1.25rem;
+  color: var(--muted);
+}
+
+.article-description > summary {
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.article-description > summary:hover {
+  color: var(--accent);
+}
+
+.article-description > .markdown-body {
+  margin-top: 0.75rem;
 }
 
 .repost-notice {

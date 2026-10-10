@@ -116,7 +116,7 @@ Write the rest of the post here.
 ```
 
 The first `#` heading is the title. The introductory content is shown in post
-lists.
+lists and in a collapsed Description section on the article page.
 
 ### Dates
 

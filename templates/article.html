@@ -14,6 +14,12 @@
       </div>
       {% if article.updated != article.published %}<div class="article-updated">Updated <time datetime="{{ updated }}">{{ updated_label }}</time></div>{% endif %}
     </div>
+    {% if let Some(description) = description %}
+      <details class="article-description">
+        <summary>Description</summary>
+        <div class="markdown-body">{{ description|safe }}</div>
+      </details>
+    {% endif %}
     {% if let Some(repost) = repost %}
       {% include "repost-notice.html" %}
     {% endif %}
