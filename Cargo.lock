@@ -1564,15 +1564,16 @@ dependencies = [
 
 [[package]]
 name = "syntaxmate"
-version = "0.1.2"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1879b28c0ac0eee9a9abade0aecb759b9495ecb62b230a18fb42e091a57dd9a"
+checksum = "d499c511742596820f38dcdd9eebfc41c28188d98d86c11866ec9b0f6998eda2"
 dependencies = [
  "memchr",
  "miniz_oxide",
  "serde",
  "serde_json",
  "unicode-general-category",
+ "unicode-ident",
  "unicode-script",
  "unicode-segmentation",
 ]
