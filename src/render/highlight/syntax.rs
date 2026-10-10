@@ -1,11 +1,10 @@
 use std::fmt::{self, Write as _};
-use std::sync::Mutex;
 
 use comrak::html::escape;
-use syntaxmate::{DocumentLine, FontModifiers, RgbColor, Style, Theme, TokenizedDocument};
+use syntaxmate::{FontModifiers, RgbColor, Style, Theme, TokenizedDocument, TokenizedLine};
 
 pub struct Highlighter {
-    engine: Mutex<syntaxmate::Highlighter>,
+    engine: syntaxmate::Highlighter,
     light_theme: Theme,
     dark_theme: Theme,
 }
@@ -13,7 +12,7 @@ pub struct Highlighter {
 impl Default for Highlighter {
     fn default() -> Self {
         Self {
-            engine: Mutex::new(syntaxmate::Highlighter::bundled().unwrap()),
+            engine: syntaxmate::Highlighter::bundled().unwrap(),
             light_theme: Theme::bundled("github-light").unwrap(),
             dark_theme: Theme::bundled("github-dark").unwrap(),
         }
@@ -23,18 +22,18 @@ impl Default for Highlighter {
 impl Highlighter {
     pub fn highlight(&self, language: Option<&str>, code: &str) -> Option<TokenizedDocument> {
         let language = language?.to_ascii_lowercase();
-        self.engine.lock().unwrap().tokenize(&language, code).ok()
+        self.engine.tokenize(&language, code).ok()
     }
 
     pub fn write_line(
         &self,
         output: &mut String,
         source: &str,
-        highlighted: &DocumentLine,
+        highlighted: &TokenizedLine,
     ) -> fmt::Result {
         let mut cursor = 0;
-        for span in highlighted.spans() {
-            let range = span.range();
+        for token in highlighted.tokens() {
+            let range = token.range();
             let start = range.start.min(source.len());
             let end = range.end.min(source.len());
             if start < cursor || end < start {
@@ -43,12 +42,8 @@ impl Highlighter {
 
             escape(output, &source[cursor..start])?;
             let style = InlineStyle {
-                light: self
-                    .light_theme
-                    .resolve(highlighted.scope_table(), span.scope_stack()),
-                dark: self
-                    .dark_theme
-                    .resolve(highlighted.scope_table(), span.scope_stack()),
+                light: self.light_theme.resolve(token.scopes()),
+                dark: self.dark_theme.resolve(token.scopes()),
             };
             write!(output, "<span style=\"{style}\">")?;
             escape(output, &source[start..end])?;
