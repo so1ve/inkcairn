@@ -683,7 +683,7 @@ summary:focus-visible {
 
   position: relative;
   max-width: 100%;
-  padding: 0 0 var(--code-content-padding);
+  padding: 0;
   overflow: hidden;
   color: var(--text);
   background: var(--surface);
@@ -767,7 +767,8 @@ summary:focus-visible {
 .markdown-body pre code {
   display: grid;
   grid-template-columns: minmax(max-content, 1fr);
-  padding: calc(var(--code-header-height) + var(--code-content-padding)) 0 0;
+  padding: calc(var(--code-header-height) + var(--code-content-padding)) 0
+    var(--code-content-padding);
   overflow-x: auto;
   overflow-y: hidden;
   font-family: inherit;
