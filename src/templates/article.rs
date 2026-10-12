@@ -32,6 +32,7 @@ struct CommentSection<'a> {
     discussion: Option<&'a Discussion>,
 }
 
+#[derive(Clone, Copy)]
 struct ArticleContext<'a> {
     article: &'a RenderedArticle,
     path: &'a str,
