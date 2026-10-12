@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10](https://github.com/so1ve/inkcairn/compare/v0.1.9...v0.1.10) - 2026-10-12
+
+### Added
+
+- bump deps
+
+### Fixed
+
+- move scrollbar padding to `<code>` instead of `<pre>`
+
+### Other
+
+- fix clippy
+- move structs
+- unify post and page rendering context
+
 ## [0.1.9](https://github.com/so1ve/inkcairn/compare/v0.1.8...v0.1.9) - 2026-10-10
 
 ### Added
