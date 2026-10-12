@@ -1,5 +1,4 @@
 use std::path::PathBuf;
-use std::sync::Mutex;
 
 use anyhow::{Context, Result};
 use comrak::html::escape;
@@ -71,28 +70,6 @@ pub struct Renderer {
 
 const FRIENDS_LANGUAGE: &str = "friends";
 const DEVICES_LANGUAGE: &str = "devices";
-
-#[derive(Default)]
-struct FriendLinks {
-    error: Mutex<Option<anyhow::Error>>,
-}
-
-#[derive(Default)]
-struct DeviceCards {
-    error: Mutex<Option<anyhow::Error>>,
-}
-
-impl FriendLinks {
-    fn take_error(&self) -> Option<anyhow::Error> {
-        self.error.lock().unwrap().take()
-    }
-}
-
-impl DeviceCards {
-    fn take_error(&self) -> Option<anyhow::Error> {
-        self.error.lock().unwrap().take()
-    }
-}
 
 impl Renderer {
     pub fn new(parser: Parser) -> Self {
@@ -213,8 +190,8 @@ impl Renderer {
         nodes: impl IntoIterator<Item = Node<'a>>,
         headings: Option<&Headings>,
     ) -> Result<String> {
-        let friends = FriendLinks::default();
-        let devices = DeviceCards::default();
+        let friends = friends::FriendLinks::default();
+        let devices = devices::DeviceCards::default();
         let mut plugins = Plugins::default();
         plugins
             .render

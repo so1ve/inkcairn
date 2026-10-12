@@ -1,12 +1,11 @@
 use std::fmt;
+use std::sync::Mutex;
 
 use anyhow::{Context, Result, bail};
 use comrak::adapters::CodefenceRendererAdapter;
 use comrak::html::{escape, escape_href};
 use comrak::nodes::Sourcepos;
 use serde::Deserialize;
-
-use super::DeviceCards;
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -16,6 +15,17 @@ struct Device {
     image: Option<String>,
     #[serde(default)]
     specs: Vec<String>,
+}
+
+#[derive(Default)]
+pub struct DeviceCards {
+    error: Mutex<Option<anyhow::Error>>,
+}
+
+impl DeviceCards {
+    pub fn take_error(&self) -> Option<anyhow::Error> {
+        self.error.lock().unwrap().take()
+    }
 }
 
 impl CodefenceRendererAdapter for DeviceCards {

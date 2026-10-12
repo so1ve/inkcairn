@@ -1,12 +1,11 @@
 use std::fmt;
+use std::sync::Mutex;
 
 use anyhow::{Context, Result, bail};
 use comrak::adapters::CodefenceRendererAdapter;
 use comrak::html::{escape, escape_href};
 use comrak::nodes::Sourcepos;
 use serde::Deserialize;
-
-use super::FriendLinks;
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -15,6 +14,17 @@ struct Friend {
     url: String,
     description: Option<String>,
     avatar: Option<String>,
+}
+
+#[derive(Default)]
+pub struct FriendLinks {
+    error: Mutex<Option<anyhow::Error>>,
+}
+
+impl FriendLinks {
+    pub fn take_error(&self) -> Option<anyhow::Error> {
+        self.error.lock().unwrap().take()
+    }
 }
 
 impl CodefenceRendererAdapter for FriendLinks {
