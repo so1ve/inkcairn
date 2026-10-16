@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11](https://github.com/so1ve/inkcairn/compare/v0.1.10...v0.1.11) - 2026-10-16
+
+### Other
+
+- *(deps)* update all non-major dependencies to v1.0.154 ([#11](https://github.com/so1ve/inkcairn/pull/11))
+
 ## [0.1.10](https://github.com/so1ve/inkcairn/compare/v0.1.9...v0.1.10) - 2026-10-12
 
 ### Added
