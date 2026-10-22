@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.11](https://github.com/so1ve/inkcairn/compare/v0.1.10...v0.1.11) - 2026-10-22
+
+### Other
+
+- *(deps)* update all non-major dependencies ([#22](https://github.com/so1ve/inkcairn/pull/22))
+- *(deps)* update rust crate tokio to v1.54.0 ([#20](https://github.com/so1ve/inkcairn/pull/20))
+- *(deps)* lock file maintenance ([#19](https://github.com/so1ve/inkcairn/pull/19))
+- *(deps)* update all non-major dependencies to v1.0.154 ([#11](https://github.com/so1ve/inkcairn/pull/11))
+
 ## [0.1.10](https://github.com/so1ve/inkcairn/compare/v0.1.9...v0.1.10) - 2026-10-12
 
 ### Added
