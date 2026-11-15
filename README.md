@@ -331,6 +331,11 @@ inkcairn build --include-drafts
 
 Theme is based on [Cactus](https://github.com/probberechts/hexo-theme-cactus)
 
+The theme bundles the Latin subsets of
+[Source Serif 4](https://github.com/adobe-fonts/source-serif) and
+[IBM Plex Mono](https://github.com/IBM/plex), both licensed under the SIL Open
+Font License 1.1. See `theme/fonts/`.
+
 ## LICENSE
 
 MIT. Made with ❤️ by [Ray](https://github.com/so1ve)

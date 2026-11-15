@@ -84,7 +84,7 @@
   gap: 0.2rem 0.6rem;
   margin-bottom: 0.4rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   line-height: 1.5;
 }
 
@@ -98,7 +98,7 @@
 }
 
 .comment-body {
-  font-size: 0.8rem;
+  font-size: 0.9375rem;
 }
 
 .comment-body p,

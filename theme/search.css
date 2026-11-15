@@ -5,8 +5,8 @@
 .search-page > h1 {
   margin: 0;
   color: var(--heading);
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.25rem);
+  font-weight: 700;
   line-height: 1.4;
 }
 
