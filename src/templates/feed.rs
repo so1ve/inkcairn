@@ -58,7 +58,11 @@ impl Site<'_> {
             .map(|post| {
                 let published = post.article.published.format(&Rfc2822).unwrap();
 
-                let mut content = String::with_capacity(post.article.html.len());
+                let description_len = match post.description.as_ref() {
+                    Some(description) => description.html.len(),
+                    None => 0,
+                };
+                let mut content = String::with_capacity(description_len + post.article.html.len());
                 if let Some(repost) = post.repost.as_ref() {
                     content.push_str(
                         &RepostNoticeTemplate {
@@ -70,6 +74,9 @@ impl Site<'_> {
                         .unwrap(),
                     );
                 }
+                if let Some(description) = post.description.as_ref() {
+                    content.push_str(&description.html);
+                }
                 content.push_str(&post.article.html);
 
                 FeedItem {
@@ -78,7 +85,8 @@ impl Site<'_> {
                     description: post
                         .description
                         .as_ref()
-                        .map(|description| description.text.as_str()),
+                        .map(|description| description.text.as_str())
+                        .filter(|text| !text.is_empty()),
                     repost: post.repost.as_ref(),
                     repost_published: post
                         .repost

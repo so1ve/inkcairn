@@ -87,7 +87,7 @@ impl<'site> Site<'site> {
             repost,
         } = context;
         let mut page = self.page(path, &article.title.text);
-        if let Some(description) = description {
+        if let Some(description) = description.filter(|description| !description.text.is_empty()) {
             page.description = Some(&description.text);
         }
         if let Some(repost) = repost {

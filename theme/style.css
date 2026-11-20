@@ -196,6 +196,7 @@ summary:focus-visible {
 .header-primary {
   display: flex;
   align-items: flex-start;
+  gap: 1rem;
 }
 
 .site-identity {
@@ -436,22 +437,14 @@ summary:focus-visible {
 
 .post-description {
   display: -webkit-box;
-  margin-top: 0.375rem;
+  margin: 0.35rem 0 0;
   overflow: hidden;
   color: var(--muted);
   font-size: 0.9375rem;
-  line-height: 1.8;
+  line-height: 1.65;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-}
-
-/* Clamping needs the excerpt's paragraphs to flow as one block of text. */
-.post-description > * {
-  display: inline;
-}
-
-.post-description > * + *::before {
-  content: " ";
+  line-clamp: 2;
 }
 
 .draft-badge,
@@ -536,23 +529,12 @@ summary:focus-visible {
 }
 
 .article-description {
-  margin-top: 1rem;
+  padding-left: 1rem;
+  margin-top: 1.25rem;
   color: var(--muted);
-  font-size: 0.9375rem;
-}
-
-.article-description > summary {
-  width: fit-content;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.article-description > summary:hover {
-  color: var(--accent);
-}
-
-.article-description > .markdown-body {
-  margin-top: 0.75rem;
+  border-left: 2px solid var(--border);
+  font-size: 1rem;
+  line-height: 1.8;
 }
 
 .repost-notice {
@@ -631,6 +613,7 @@ summary:focus-visible {
 
 /* Justified text suits CJK; in Latin text it leaves uneven word gaps. */
 :root:is(:lang(zh), :lang(ja)) .article-main > .markdown-body,
+:root:is(:lang(zh), :lang(ja)) .article-description,
 :root:is(:lang(zh), :lang(ja)) .post-description {
   text-align: justify;
 }
@@ -1116,10 +1099,11 @@ summary:focus-visible {
   margin-top: 0.25rem;
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   line-height: 1.5;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .markdown-body .device-list {
@@ -1186,7 +1170,7 @@ summary:focus-visible {
 .markdown-body .device-card-description {
   margin: 0.4rem 0 0;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   line-height: 1.55;
 }
 
@@ -1380,7 +1364,9 @@ summary:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  :root:is(:lang(zh), :lang(ja)) .article-main > .markdown-body {
+  :root:is(:lang(zh), :lang(ja)) .article-main > .markdown-body,
+  :root:is(:lang(zh), :lang(ja)) .article-description,
+  :root:is(:lang(zh), :lang(ja)) .post-description {
     text-align: left;
   }
 

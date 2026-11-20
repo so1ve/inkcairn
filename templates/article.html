@@ -13,10 +13,7 @@
       {% if article.draft %}<span class="draft-badge">Draft</span>{% endif %}
     </div>
     {% if let Some(description) = description %}
-      <details class="article-description">
-        <summary>Description</summary>
-        <div class="markdown-body">{{ description|safe }}</div>
-      </details>
+      <div class="article-description markdown-body">{{ description|safe }}</div>
     {% endif %}
     {% if let Some(repost) = repost %}
       {% include "repost-notice.html" %}

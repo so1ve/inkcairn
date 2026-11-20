@@ -117,7 +117,8 @@ impl<'site> Site<'site> {
                 description: post
                     .description
                     .as_ref()
-                    .map(|description| description.html.as_str()),
+                    .map(|description| description.text.as_str())
+                    .filter(|text| !text.is_empty()),
                 categories: self.category_links(&post.path.categories[category_depth..]),
                 draft: post.article.draft,
                 pinned: post.pinned,
