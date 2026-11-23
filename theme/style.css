@@ -1292,12 +1292,6 @@ summary:focus-visible {
     color: var(--muted);
     font-weight: 400;
     text-decoration: none;
-    opacity: 0;
-  }
-
-  .markdown-body :is(h1, h2, h3, h4, h5, h6):hover > .anchor,
-  .markdown-body .anchor:focus-visible {
-    opacity: 1;
   }
 }
 
