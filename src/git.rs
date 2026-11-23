@@ -112,7 +112,7 @@ impl GitIndex {
         let output = self
             .repository
             .command()
-            .args(["log", "--follow", "--reverse", "--format=%cI"])
+            .args(["log", "--follow", "--format=%cI"])
             .arg("--")
             .arg(relative)
             .output()?;
@@ -121,13 +121,13 @@ impl GitIndex {
         }
         let output = String::from_utf8(output.stdout).unwrap();
         let mut dates = output.lines().filter(|line| !line.is_empty());
-        let Some(created_at) = dates.next() else {
+        let Some(updated_at) = dates.next() else {
             return Ok(None);
         };
-        let created_at = OffsetDateTime::parse(created_at, &Rfc3339).unwrap();
-        let updated_at = match dates.next_back() {
+        let updated_at = OffsetDateTime::parse(updated_at, &Rfc3339).unwrap();
+        let created_at = match dates.next_back() {
             Some(date) => OffsetDateTime::parse(date, &Rfc3339).unwrap(),
-            None => created_at,
+            None => updated_at,
         };
 
         Ok(Some(FileInfo {
