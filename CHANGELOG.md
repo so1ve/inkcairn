@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.14](https://github.com/so1ve/inkcairn/compare/v0.1.13...v0.1.14) - 2026-11-27
+
+### Other
+
+- *(deps)* update rust crate blake3 to v1.8.8 ([#40](https://github.com/so1ve/inkcairn/pull/40))
+- *(deps)* update rust crate clap to v4.6.10 ([#39](https://github.com/so1ve/inkcairn/pull/39))
+- *(deps)* update rust crate anyhow to v1.0.105 ([#38](https://github.com/so1ve/inkcairn/pull/38))
+- *(deps)* lock file maintenance ([#36](https://github.com/so1ve/inkcairn/pull/36))
+
 ## [0.1.13](https://github.com/so1ve/inkcairn/compare/v0.1.12...v0.1.13) - 2026-11-23
 
 ### Fixed
